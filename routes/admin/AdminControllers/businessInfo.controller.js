@@ -43,3 +43,15 @@ export const getBusinessBasedOnId =async(req,res)=>{
         )
     }
 }
+
+export const updateBusinessData =async(req,res)=>{
+    try {
+        const adminid = req.params.adminid;
+        const {BusinessName,BusinessAddress,BusinessCategory,Country,State,City,pinCode,website,latitude,longitude} = req.body;
+        const result = await updateBusinessDataService(adminid,BusinessName,BusinessAddress,BusinessCategory,Country,State,City,pinCode,website,latitude,longitude);
+    } catch (error) {
+        return res.status(500).json(
+            {error:"Internal Server error"+error}
+        )
+    }
+}

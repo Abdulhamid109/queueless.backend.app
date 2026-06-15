@@ -38,9 +38,18 @@ const QueueModal = new mongoose.Schema({
     //here we will : Started, waiting, failed
     QueueStatus:{
         type:String
+    },
+    LatestLongitude:{
+        type:String
+    },
+    LatestLongitude:{
+        type:String
     }
     
+    
 });
+
+
 
 const queue = mongoose.models.queue || mongoose.model('queue',QueueModal);
 export default queue;

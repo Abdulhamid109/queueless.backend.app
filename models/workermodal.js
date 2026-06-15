@@ -20,6 +20,13 @@ const WorkerModal = new mongoose.Schema({
     businessId: {
         type: String
     },
+    queueInfo:
+        [
+            {
+                queueID: String,
+                QueuePostion: String
+            }
+        ],
 
 });
 

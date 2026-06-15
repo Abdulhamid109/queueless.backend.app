@@ -9,6 +9,10 @@ export const BusinessBasedOnCatService = async (category, latitude, longitude) =
         throw new Error("Catergory not present");
     }
 
+
+    console.log("Category => "+category);
+    console.log("latitude => "+latitude);
+    console.log("longitude => "+longitude);
     //mongodb aggregation for calculating the distance betn(Me ---- business)
     // $geonear pipeline for getting the business based on the 4KM Radius
 

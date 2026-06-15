@@ -50,3 +50,10 @@ export const getBusinessDataFromID =async(bid)=>{
     const businessData = await business.findById(bid);
     return businessData;
 }
+
+export const updateBusinessDataService = async(aid,BusinessName,BusinessAddress,BusinessCategory,Country,State,City,pinCode,website,latitude,longitude)=>{
+    if(!aid){
+        throw new Error("Unauthorized Admin");
+    }
+
+}
