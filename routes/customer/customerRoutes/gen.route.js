@@ -15,7 +15,7 @@ GenCustomerRouter.post("/getBusinessBasedOnCat/:slug",GetBusinessBasedOnCat);
 GenCustomerRouter.post("/addSystemFeedback",addSystemFeedbackInfo);
 GenCustomerRouter.post("/addServiceFeedback/:bid/:cid",addServiceFeedbackInfo);
 GenCustomerRouter.post("/joinQueue/:bid/:uid",joinQueueController);
-GenCustomerRouter.post("/getLiveLocation",UpdateLiveLocations)
+GenCustomerRouter.post("/getLiveLocation/:uid",UpdateLiveLocations)
 
 
 export default GenCustomerRouter;

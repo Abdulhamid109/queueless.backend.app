@@ -38,7 +38,16 @@ const CustomerModal = new mongoose.Schema({
         queueId:    { type: String, ref: 'queue' },
         date:String
     }
-]
+],
+    LiveLatitude:{
+        type:String
+    },
+    LiveLongitude:{
+        type:String
+    },
+    FlexibleTiming:{
+        type:Boolean
+    }
 
 });
 

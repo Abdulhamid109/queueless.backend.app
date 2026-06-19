@@ -2,8 +2,9 @@ import { updateLiveLocationService } from "../CustomerServices/livelocation.serv
 
 export const UpdateLiveLocations =async(req,res)=>{
     try {
+        const uid = req.params.uid;
         const {latitude,longitude} = req.body;
-        const status = await updateLiveLocationService(latitude,longitude);
+        const status = await updateLiveLocationService(uid,latitude,longitude);
         return res.status(200).json(
             {success:true,status}
         )

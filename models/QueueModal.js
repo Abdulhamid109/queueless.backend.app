@@ -39,12 +39,7 @@ const QueueModal = new mongoose.Schema({
     QueueStatus:{
         type:String
     },
-    LatestLongitude:{
-        type:String
-    },
-    LatestLongitude:{
-        type:String
-    }
+
     
     
 });
