@@ -4,7 +4,7 @@ import queue from "../../../models/QueueModal.js";
 import service from "../../../models/serviceModal.js";
 import BusinessTime from "../../../models/TimeModal.js";
 import worker from "../../../models/workermodal.js";
-import { inngest } from "../../../utils/inngest/inngestClient.js";
+import { inngestClient } from "../../../utils/inngest/inngestClient.js";
 
 
 export const joinQueueService = async (serviceids, bid, uid) => {
@@ -112,7 +112,7 @@ export const joinQueueService = async (serviceids, bid, uid) => {
 
             //calling the inngest function here
 
-            await inngest.send(
+            await inngestClient.send(
                 {
                     name:"Queue-After-Join",
                     id:"QueueArch-afterJoin",
