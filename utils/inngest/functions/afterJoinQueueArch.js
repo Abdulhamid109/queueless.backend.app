@@ -3,6 +3,7 @@ import business from "../../../models/BusinessModal.js";
 import customer from "../../../models/CustomerModal.js";
 import queue from "../../../models/QueueModal.js";
 import service from "../../../models/serviceModal.js";
+import { getIO } from "../../socket.js";
 import { inngestClient } from "../inngestClient.js";
 
 export const AfterJoinWork = inngestClient.createFunction(
@@ -14,6 +15,7 @@ export const AfterJoinWork = inngestClient.createFunction(
         let isuserLeft = false;
         let tries = 0;
         let userArrived = false;
+        
 
         while (!shouldNotify) {
             const result = await step.run(`poll-count-${pollCount}`, async () => {
@@ -123,7 +125,9 @@ export const AfterJoinWork = inngestClient.createFunction(
                             uid: uid,
                             qid: qid
                         }
-                    })
+                    });
+
+
                 });
 
                 const nextUSer = await step.run('get-next-user', async () => {

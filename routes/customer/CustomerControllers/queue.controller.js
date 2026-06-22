@@ -1,4 +1,4 @@
-import { joinQueueService } from "../CustomerServices/queue.service.js";
+import { joinQueueService, QueueCountService, UpdatedQueueDataService } from "../CustomerServices/queue.service.js";
 
 
 export const joinQueueController =async(req,res)=>{
@@ -13,6 +13,35 @@ export const joinQueueController =async(req,res)=>{
             {success:true,data}
         )
         
+    } catch (error) {
+        return res.status(500).json(
+            {error:"Internal Server error "+error}
+        )
+    }
+}
+
+
+export const QueueCountController =async(req,res)=>{
+    try {
+        const {QueueCount,bid} = req.body;
+        await QueueCountService(QueueCount,bid);
+        return res.status(200).json(
+            {success:true}
+        )
+    } catch (error) {
+        return res.status(500).json(
+            {error:"Internal Server error "+error}
+        )
+    }
+}
+
+export const updatedQueueDataController = async(req,res)=>{
+    try {
+        const {UpdatedExpectedStartTime,CurrentPostion,uid} = req.body;
+        await UpdatedQueueDataService(UpdatedExpectedStartTime,CurrentPostion,uid);
+        return res.status(200).json(
+            {success:true}
+        )
     } catch (error) {
         return res.status(500).json(
             {error:"Internal Server error "+error}

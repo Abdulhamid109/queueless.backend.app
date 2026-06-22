@@ -5,6 +5,8 @@ import service from "../../../models/serviceModal.js";
 import BusinessTime from "../../../models/TimeModal.js";
 import worker from "../../../models/workermodal.js";
 import { inngestClient } from "../../../utils/inngest/inngestClient.js";
+import { getIO } from "../../../utils/socket.js";
+
 
 
 export const joinQueueService = async (serviceids, bid, uid) => {
@@ -133,4 +135,24 @@ export const joinQueueService = async (serviceids, bid, uid) => {
 
 
 
+}
+
+
+export const QueueCountService = async (QueueCount,bid) =>{
+    if(!QueueCount || !bid){
+        throw new Error("No Data found!")
+    }
+    const io = getIO();
+    io.to(bid).emit("updated-queue-count",QueueCount);
+}
+
+export const UpdatedQueueDataService = async (UpdatedExpectedStartTime,CurrentPostion,uid)=>{
+    if(!QueueCount || !bid){
+        throw new Error("No Data found!")
+    }
+    const io = getIO();
+    io.to(uid).emit("updated-queue-Data",{
+        UpdatedExpectedStartTime,
+        CurrentPostion
+    })
 }

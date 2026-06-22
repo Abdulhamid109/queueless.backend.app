@@ -9,6 +9,7 @@ export const RebalanceQueue = await inngestClient.createFunction(
     { id: "QueueArch-Rebalance", triggers: { event: "Queue-Arch-Rebalance" } },
     async ({ event, step }) => {
         const { bid, uid, qid } = event.data;
+        // const io = getIO();
         await step.run("rebalancing-Queue", async () => {
 
             const UpdateCustomer = await customer.findOneAndUpdate(
@@ -63,10 +64,13 @@ export const RebalanceQueue = await inngestClient.createFunction(
                         expectedStartTime: UpdatedExpectedStartTime
                     },
                 );
-                await worker.updateOne(
+                // io.to(queueDoc.UserId).emit("UpdatedExpectedStartTime",expectedStartTime);
+                //webhook call to Node Server from inngest server
+                // calling the webhook connection to trigger the websocket inside the route
+                const updatedWorker = await worker.findOneAndUpdate(
                     {
                         _id: workerData._id,
-                        "queueInfo.queueID": q.queueID
+                        "queueInfo.queueID": d.queueID
                     },
                     {
                         $inc: {
@@ -74,7 +78,36 @@ export const RebalanceQueue = await inngestClient.createFunction(
                         }
                     }
                 );
+                // io.to(queueDoc.UserId).emit("currentPostion",)
+                const queueInfoData = updatedWorker.queueInfo.find(
+                    item => item.queueID.toString() === queueDoc._id.toString()
+                );
+                await fetch(`${process.env.DEVLINK}/updateQueueData`,
+                    {
+                        headers: { 'Content-Type': 'application/json' },
+                        method: "POST",
+                        body: JSON.stringify({
+                            "UpdatedExpectedStartTime": UpdatedExpectedStartTime,
+                            "CurrentPostion": queueInfoData.QueuePostion,
+                            "uid": queueDoc.UserId
+                        })
+                    }
+                )
+
             }));
+
+            //emitting the total queue count based on the room
+            await fetch(`${process.env.DEVLINK}/getTotalQueueCount`,
+                    {
+                        headers: { 'Content-Type': 'application/json' },
+                        method: "POST",
+                        body: JSON.stringify({
+                            "QueueCount": upcomingQueues.length,
+                            "bid": bid
+                        })
+                    }
+                )
+
 
             //remove the Queuefromworker
             await worker.findByIdAndUpdate(workerData._id, {
