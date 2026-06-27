@@ -32,3 +32,15 @@ export const gettimeData = async(BusinessID)=>{
     const timeData = await BusinessTime.findOne({BusinessID});
     return timeData;
 }
+
+export const updateTimeData = async(tid,BST,BET,CustomerLimitPerDay,AdditionalInformation)=>{
+    if(!tid){
+        throw new Error("Invalid time id");
+    }
+    const UpdatetimeDB = await BusinessTime.findByIdAndUpdate(tid,{
+        BST,
+        BET,
+        CustomerLimitPerDay,
+        AdditionalInformation
+    })
+}

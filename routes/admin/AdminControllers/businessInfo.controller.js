@@ -1,4 +1,4 @@
-import { addbusinessData, getBusinessData, getBusinessDataFromID } from "../AdminServices/businessInfo.service.js";
+import { addbusinessData, getBusinessData, getBusinessDataFromID, updateBusinessDataService } from "../AdminServices/businessInfo.service.js";
 
 
 export const addbusinessInfo =async(req,res)=>{
@@ -47,8 +47,12 @@ export const getBusinessBasedOnId =async(req,res)=>{
 export const updateBusinessData =async(req,res)=>{
     try {
         const adminid = req.params.adminid;
+        const bid = req.params.bid;
         const {BusinessName,BusinessAddress,BusinessCategory,Country,State,City,pinCode,website,latitude,longitude} = req.body;
-        const result = await updateBusinessDataService(adminid,BusinessName,BusinessAddress,BusinessCategory,Country,State,City,pinCode,website,latitude,longitude);
+        const data = await updateBusinessDataService(bid,adminid,BusinessName,BusinessAddress,BusinessCategory,Country,State,City,pinCode,website,latitude,longitude);
+        return res.status(200).json(
+            {success:true,data}
+        )
     } catch (error) {
         return res.status(500).json(
             {error:"Internal Server error"+error}

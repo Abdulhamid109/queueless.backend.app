@@ -24,8 +24,30 @@ export const addworkerData =async(workerName,WorkerEmail,adminId,businessId)=>{
 
 export const getServiceWorkerData = async(businessId)=>{
     if(!businessId){
-        throw new Error("No business Associated")
+        throw new Error("No workers Associated with this business")
     }
     const workersData = await worker.find({businessId:businessId});
+    console.log("workers => "+workersData);
     return workersData;
+}
+
+export const getSingleWorker = async(wid)=>{
+    if(!wid){
+        throw new Error("No workers Associated with this business");
+    }
+    const workerData = await worker.findById(wid);
+    return workerData;
+}
+
+export const updateWorker = async (wid,workerName,WorkerEmail) =>{
+    if(!wid){
+        throw new Error("Invalid worker id");
+    }
+
+    const updatedWorkerInfo = await worker.findByIdAndUpdate(wid,{
+        workerName,
+        WorkerEmail
+    });
+
+    return updatedWorkerInfo;
 }

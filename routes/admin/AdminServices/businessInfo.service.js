@@ -5,12 +5,12 @@ import business from "../../../models/BusinessModal.js";
 
 
 dbconnect();
-export const addbusinessData = async(adminid,BusinessName,BusinessAddress,BusinessCategory,Country,State,City,pinCode,website,latitude,longitude)=>{
-    if(!adminid){
+export const addbusinessData = async (adminid, BusinessName, BusinessAddress, BusinessCategory, Country, State, City, pinCode, website, latitude, longitude) => {
+    if (!adminid) {
         throw new Error("Unauthorized Admin!")
     }
-    if(!BusinessName || !BusinessAddress || !BusinessCategory || !Country || !State || !City || !pinCode || !latitude || !longitude){
-        throw new Error("Values incompleted!") 
+    if (!BusinessName || !BusinessAddress || !BusinessCategory || !Country || !State || !City || !pinCode || !latitude || !longitude) {
+        throw new Error("Values incompleted!")
     }
 
 
@@ -25,25 +25,25 @@ export const addbusinessData = async(adminid,BusinessName,BusinessAddress,Busine
         City,
         pinCode,
         website,
-        "BusinessCurrentLocation.type":"Point",
-        "BusinessCurrentLocation.coordinates":[longitude,latitude],
+        "BusinessCurrentLocation.type": "Point",
+        "BusinessCurrentLocation.coordinates": [longitude, latitude],
     });
 
     const savedBusiness = await newBusinessInformation.save();
     return savedBusiness._id;
 }
 
-export const getBusinessData = async(adminid)=>{
-    if(!adminid){
+export const getBusinessData = async (adminid) => {
+    if (!adminid) {
         throw new Error("Unauthorized Admin!")
     }
-    const registeredBusiness = await business.find({adminid});
-    console.log("Business length => "+registeredBusiness.length)
+    const registeredBusiness = await business.find({ adminid });
+    console.log("Business length => " + registeredBusiness.length)
     return registeredBusiness;
 }
 
-export const getBusinessDataFromID =async(bid)=>{
-    if(!bid){
+export const getBusinessDataFromID = async (bid) => {
+    if (!bid) {
         throw new Error("business id not found!");
     }
 
@@ -51,9 +51,37 @@ export const getBusinessDataFromID =async(bid)=>{
     return businessData;
 }
 
-export const updateBusinessDataService = async(aid,BusinessName,BusinessAddress,BusinessCategory,Country,State,City,pinCode,website,latitude,longitude)=>{
-    if(!aid){
+export const updateBusinessDataService = async (bid, aid, BusinessName, BusinessAddress, BusinessCategory, Country, State, City, pinCode, website, latitude, longitude) => {
+    if (!aid) {
         throw new Error("Unauthorized Admin");
     }
 
+
+    if (latitude == 0 || longitude == 0) {
+        const updatedBusiness = await business.findByIdAndUpdate(bid, {
+            BusinessName,
+            BusinessCategory,
+            Country,
+            State,
+            City,
+            pinCode,
+            website,
+        });
+        return updatedBusiness;
+    }
+
+    const updatedBusiness = await business.findByIdAndUpdate(bid, {
+        BusinessName,
+        BusinessAddress,
+        BusinessCategory,
+        Country,
+        State,
+        City,
+        pinCode,
+        website,
+        "BusinessCurrentLocation.type": "Point",
+        "BusinessCurrentLocation.coordinates": [longitude, latitude],
+    });
+
+    return updatedBusiness;
 }
