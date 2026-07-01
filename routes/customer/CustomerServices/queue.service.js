@@ -101,6 +101,10 @@ export const joinQueueService = async (serviceids, bid, uid) => {
                 },
             );
 
+            //emit an event to the frontend regarding the queuecount and estimatedwaiting time
+            const io = getIO();
+            io.to(uid).emit("queue-estimated-status")
+
             const updatedCustomer = await customer.findOneAndUpdate({ _id: uid },
                 {
                     $push: {
@@ -137,13 +141,19 @@ export const joinQueueService = async (serviceids, bid, uid) => {
 
 }
 
-
+//before joinig and after the queue(for continous updates)
 export const QueueCountService = async (QueueCount,bid) =>{
     if(!QueueCount || !bid){
         throw new Error("No Data found!")
     }
+    // get the count of the workers enrolled for the queue of this bid
+    // need to optimize it in the later part
+    const allworkers = await worker.find({businessId:bid});
     const io = getIO();
-    io.to(bid).emit("updated-queue-count",QueueCount);
+    for(const workerdata in allworkers){
+        const workerQueueCount = workerdata.queueInfo.length;
+        io.to(bid).emit(`worker-${workerdata["workerName"]}`,workerQueueCount);
+    }
 }
 
 export const UpdatedQueueDataService = async (UpdatedExpectedStartTime,CurrentPostion,uid)=>{

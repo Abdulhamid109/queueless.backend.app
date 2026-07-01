@@ -97,7 +97,7 @@ export const RebalanceQueue = await inngestClient.createFunction(
             }));
 
             //emitting the total queue count based on the room
-            await fetch(`${process.env.DEVLINK}/getTotalQueueCount`,
+            await fetch(`${process.env.DEVLINK}/getUpdatedQueueCount`,
                     {
                         headers: { 'Content-Type': 'application/json' },
                         method: "POST",

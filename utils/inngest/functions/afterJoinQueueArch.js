@@ -60,17 +60,13 @@ export const AfterJoinWork = inngestClient.createFunction(
         // step04:Continously checcking the users location whether in the given time if it is in the readius or not
         const isNearbyPresent = await step.run("check-location-nearby", async () => {
 
-            // create an api route which triggers the frontend for getting the live location 
             const userDB = await customer.findById(uid);
             const businessDB = await business.findById(bid);
-
-            //create a method which return the distance
 
             const distance = getDistanceInMeters(
                 [userDB.LiveLongitude, userDB.LiveLatitude],
                 businessDB.BusinessCurrentLocation.coordinates
             );
-            // if the distance is less than 50m
             return distance;
         });
 
