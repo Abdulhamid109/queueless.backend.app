@@ -75,7 +75,7 @@ export const joinQueueService = async (serviceids, bid, uid) => {
             }
 
             const expectedSlotStartingTime = new Date(
-                Date.now() +totalWaitingTime*60000
+                Date.now() + totalWaitingTime * 60000
             )
             const newQueue = new queue({
                 UserId: uid,
@@ -84,9 +84,9 @@ export const joinQueueService = async (serviceids, bid, uid) => {
                 ServiceId: serviceids,
                 JoinedQueue: true,
                 QueueStatus: "waiting",
-                CurrentPostion:CustomerPostionBasedOnWorker + 1,
-                UserWaitingTime:totalWaitingTime,
-                expectedStartTime:expectedSlotStartingTime   //this is the exp. stTime mapped with the date object
+                CurrentPostion: CustomerPostionBasedOnWorker + 1,
+                UserWaitingTime: totalWaitingTime,
+                expectedStartTime: expectedSlotStartingTime   //this is the exp. stTime mapped with the date object
 
             });
 
@@ -120,12 +120,12 @@ export const joinQueueService = async (serviceids, bid, uid) => {
 
             await inngestClient.send(
                 {
-                    name:"Queue-After-Join",
-                    id:"QueueArch-afterJoin",
-                    data:{
+                    name: "Queue-After-Join",
+                    id: "QueueArch-afterJoin",
+                    data: {
                         uid,
                         bid,
-                        qid:saavedQueue._id
+                        qid: saavedQueue._id
                     }
                 },
             )
@@ -142,26 +142,30 @@ export const joinQueueService = async (serviceids, bid, uid) => {
 }
 
 //before joinig and after the queue(for continous updates)
-export const QueueCountService = async (QueueCount,bid) =>{
-    if(!QueueCount || !bid){
-        throw new Error("No Data found!")
-    }
+export const QueueCountService = async (QueueCount, bid) => {
+    // if (!QueueCount || !bid) {
+    //     throw new Error("No Data found!")
+    // }
     // get the count of the workers enrolled for the queue of this bid
     // need to optimize it in the later part
-    const allworkers = await worker.find({businessId:bid});
+    const allworkers = await worker.find({ businessId: bid });
     const io = getIO();
-    for(const workerdata in allworkers){
-        const workerQueueCount = workerdata.queueInfo.length;
-        io.to(bid).emit(`worker-${workerdata["workerName"]}`,workerQueueCount);
-    }
+    const workerCounts = allworkers.map(worker => ({
+        workerId: worker._id,
+        workerName: worker.workerName,
+        queueCount: worker.queueInfo.length,
+    }));
+
+    io.to(bid).emit("workerQueueUpdated", workerCounts);
+    // return workerCounts;
 }
 
-export const UpdatedQueueDataService = async (UpdatedExpectedStartTime,CurrentPostion,uid)=>{
-    if(!QueueCount || !bid){
+export const UpdatedQueueDataService = async (UpdatedExpectedStartTime, CurrentPostion, uid) => {
+    if (!QueueCount || !bid) {
         throw new Error("No Data found!")
     }
     const io = getIO();
-    io.to(uid).emit("updated-queue-Data",{
+    io.to(uid).emit("updated-queue-Data", {
         UpdatedExpectedStartTime,
         CurrentPostion
     })

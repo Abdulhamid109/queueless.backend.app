@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors"
 import { configDotenv } from "dotenv";
-import {MaincustomerRouter,Adminrouter, GenCustomerRouter, PrivateAdminRouter} from "./routes/index.js";
+import {MaincustomerRouter,Adminrouter, GenCustomerRouter, PrivateAdminRouter, WorkerAuthRouter, PrivateWorkerRouter} from "./routes/index.js";
 import { inngestClient } from "./utils/inngest/inngestClient.js";
 // import { functions }: from "./utils/inngest/expFun.js";
 import { serve } from "inngest/express";
@@ -21,6 +21,8 @@ app.use("/admin/auth/",Adminrouter)
 app.use("/customer/auth/",MaincustomerRouter)
 app.use("/customer/",GenCustomerRouter)
 app.use("/admin",PrivateAdminRouter);
+app.use("/worker/auth/",WorkerAuthRouter);
+app.use("/worker/",PrivateWorkerRouter)
 app.use("/api/inngest", serve({ client: inngestClient, functions:[AfterJoinWork,RebalanceQueue] }));
 
 

@@ -2,6 +2,10 @@ import mongoose from "mongoose"
 
 
 const WorkerModal = new mongoose.Schema({
+    role:{
+        type:String,
+        default:"worker"
+    },
     workerName: {
         type: String
     },

@@ -16,7 +16,7 @@ GenCustomerRouter.post("/addSystemFeedback",addSystemFeedbackInfo);
 GenCustomerRouter.post("/addServiceFeedback/:bid/:cid",addServiceFeedbackInfo);
 GenCustomerRouter.post("/joinQueue/:bid/:uid",joinQueueController);
 GenCustomerRouter.post("/getLiveLocation/:uid",UpdateLiveLocations);
-GenCustomerRouter.post("/getTotalQueueCount/:bid",QueueCountController);
+GenCustomerRouter.get("/getTotalQueueCount/:bid",QueueCountController);
 // GenCustomerRouter.post("/getUpdatedQueueCount/:bid",UpdatedQueueCountController);
 GenCustomerRouter.post("/updateQueueData",updatedQueueDataController);
 
