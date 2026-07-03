@@ -13,6 +13,10 @@ const WorkerModal = new mongoose.Schema({
         type: String,
         unique: true
     },
+    date:{
+        type:Date,
+        default:Date.now
+    },
     WorkStatus: {
         type: String,
         enum: ["active", "inactive"], //(to check whether the worker is active or not)

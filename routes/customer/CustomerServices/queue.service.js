@@ -103,7 +103,7 @@ export const joinQueueService = async (serviceids, bid, uid) => {
 
             //emit an event to the frontend regarding the queuecount and estimatedwaiting time
             const io = getIO();
-            io.to(uid).emit("queue-estimated-status")
+            io.to(uid).emit("queue-estimated-time",expectedSlotStartingTime);
 
             const updatedCustomer = await customer.findOneAndUpdate({ _id: uid },
                 {
@@ -117,7 +117,6 @@ export const joinQueueService = async (serviceids, bid, uid) => {
 
 
             //calling the inngest function here
-
             await inngestClient.send(
                 {
                     name: "Queue-After-Join",

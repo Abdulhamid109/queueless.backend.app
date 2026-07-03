@@ -13,6 +13,13 @@ export const intializeSocketConnection = (socketio) => {
             for (const room of socket.rooms) {
                 if (room !== socket.id) socket.leave(room);
             }
+        });
+        socket.on("JoinUser",(uid)=>{
+            socket.join(uid);
+            console.log(`user ${socket.id} joined with db-user-id ${uid}`);
+            for (const room of socket.room){
+                if(room !==socket.id) socket.leave(room);
+            }
         })
     })
 }
