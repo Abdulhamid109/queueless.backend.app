@@ -24,9 +24,9 @@ export const joinQueueService = async (serviceids, bid, uid) => {
         QueueStatus: { $in: ["waiting", "in-progress"] }
     });
 
-    // if (existingActiveQueue) {
-    //     throw "You're already in a queue. Please wait until it's completed before joining another.";
-    // }
+    if (existingActiveQueue) {
+        throw "You're already in a queue. Please wait until it's completed before joining another.";
+    }
 
     //2.timedetails & customer limit contrainsts
     const timeDB = await BusinessTime.findOne({ BusinessID: bid });
