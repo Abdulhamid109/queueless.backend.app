@@ -15,19 +15,18 @@ export const joinQueueService = async (serviceids, bid, uid) => {
     }
     const now = new Date();
     const Currentdate = now.toLocaleDateString();
+    const io = getIO();
 
     //1.To check whether the user/customer is already enrolled in the queue
-    const userDB = await customer.findById(uid);
-    const ispresent = userDB.activeQueues?.find(
-        (queue) => (
-            queue.businessId.toString() == bid &&
-            queue.date.toString() == Currentdate
-        )
-    )
+    const existingActiveQueue = await queue.findOne({
+        UserId: uid,
+        businessId:bid,
+        QueueStatus: { $in: ["waiting", "in-progress"] }
+    });
 
-    if (ispresent) {
-        throw "User already in the Queue"
-    }
+    // if (existingActiveQueue) {
+    //     throw "You're already in a queue. Please wait until it's completed before joining another.";
+    // }
 
     //2.timedetails & customer limit contrainsts
     const timeDB = await BusinessTime.findOne({ BusinessID: bid });
@@ -48,91 +47,87 @@ export const joinQueueService = async (serviceids, bid, uid) => {
     const postion = countAhead + 1;
     console.log("Current Users postion in the Queue" + postion);
 
-    if (postion >= (await TimeDb.CustomerLimitPerDay)) {
+    if (postion >= (await timeDB.CustomerLimitPerDay)) {
         throw "Unable to Book..Customer Limit exceeds for the day"
     }
 
     //3.Based on the workers availibility add them in the Queue
     const workerDB = await worker.find({ businessId: bid });
 
-    for (const d of workerDB) {
-        if (d.WorkStatus == "active") {
-            const CustomerPostionBasedOnWorker = await d.queueInfo.length;
-            let totalWaitingTime = 0;
+    // console.log("🟡Found workers => "+workerDB);
+    let chosenWorker = null;
+    let minWaitingTime = Infinity;
+    let chosenPosition = 0;
 
-            for (const e of d.queueInfo) {
-                const QueueDB = await queue.findOne({ _id: e.queueID, QueueStatus: "waiting" });
-                if (!queueDB) continue;
+for (const d of workerDB) {
+    if (d.WorkStatus !== "active") continue;
 
-                const services = await service.find({
-                    _id: { $in: queueDB.ServiceId }
-                });
-                const queueWaitingTime = services.reduce(
-                    (sum, service) => sum + Number(service.AvgDurationPerCustomer),
-                    0
-                );
-                totalWaitingTime += queueWaitingTime;
-            }
+    let totalWaitingTime = 0;
+    for (const e of d.queueInfo) {
+        const QueueDB = await queue.findOne({ _id: e.queueID, QueueStatus: "waiting" });
+        if (!QueueDB) continue;
+        
 
-            const expectedSlotStartingTime = new Date(
-                Date.now() + totalWaitingTime * 60000
-            )
-            const newQueue = new queue({
-                UserId: uid,
-                businessId: bid,
-                date: Currentdate,
-                ServiceId: serviceids,
-                JoinedQueue: true,
-                QueueStatus: "waiting",
-                CurrentPostion: CustomerPostionBasedOnWorker + 1,
-                UserWaitingTime: totalWaitingTime,
-                expectedStartTime: expectedSlotStartingTime   //this is the exp. stTime mapped with the date object
+        const services = await service.find({ _id: { $in: QueueDB.ServiceId } });
+        totalWaitingTime += services.reduce(
+            (sum, s) => sum + Number(s.AvgDurationPerCustomer),
+            0
+        );
+    }
 
-            });
+    if (totalWaitingTime < minWaitingTime) {
+        minWaitingTime = totalWaitingTime;
+        chosenWorker = d;
+        chosenPosition = d.queueInfo.length;
+    }
+}
 
-            const saavedQueue = await newQueue.save();
-            const updateWorker = await worker.findByIdAndUpdate(
-                d._id,
-                {
-                    $push: {
-                        queueInfo: { queueID: saavedQueue._id, QueuePostion: CustomerPostionBasedOnWorker + 1 },
-                    }
+if (!chosenWorker) {
+    throw "No active workers available";
+}
 
-                },
-            );
+// now do the single assignment, once, to chosenWorker
+const expectedSlotStartingTime = new Date(Date.now() + minWaitingTime * 60000);
 
-            //emit an event to the frontend regarding the queuecount and estimatedwaiting time
-            const io = getIO();
-            io.to(uid).emit("queue-estimated-time",expectedSlotStartingTime);
+const newQueue = new queue({
+    UserId: uid,
+    businessId: bid,
+    date: Currentdate,
+    ServiceId: serviceids,
+    JoinedQueue: true,
+    QueueStatus: "waiting",
+    CurrentPostion: chosenPosition + 1,
+    UserWaitingTime: minWaitingTime,
+    expectedStartTime: expectedSlotStartingTime
+});
 
-            const updatedCustomer = await customer.findOneAndUpdate({ _id: uid },
-                {
-                    $push: {
-                        businessId: bid,
-                        queueId: saavedQueue._id,
-                        date: Currentdate
-                    }
-                }
-            );
+const saavedQueue = await newQueue.save();
 
-
-            //calling the inngest function here
-            await inngestClient.send(
-                {
-                    name: "Queue-After-Join",
-                    id: "QueueArch-afterJoin",
-                    data: {
-                        uid,
-                        bid,
-                        qid: saavedQueue._id
-                    }
-                },
-            )
-
-            break;
-
+await worker.findByIdAndUpdate(chosenWorker._id, {
+    $push: {
+        queueInfo: {
+            queueID: saavedQueue._id,
+            QueuePostion: chosenPosition + 1,
+            date: now.toLocaleDateString()
         }
     }
+});
+
+io.to(uid).emit("queue-estimated-time", expectedSlotStartingTime);
+await QueueCountService(bid);
+
+await customer.findOneAndUpdate(
+    { _id: uid },
+    { $push: { businessId: bid, queueId: saavedQueue._id, date: Currentdate } }
+);
+
+await inngestClient.send({
+    name: "Queue-After-Join",
+    id: "QueueArch-afterJoin",
+    data: { uid, bid, qid: saavedQueue._id }
+});
+
+return saavedQueue._id;
 
 
 
@@ -141,22 +136,13 @@ export const joinQueueService = async (serviceids, bid, uid) => {
 }
 
 //before joinig and after the queue(for continous updates)
-export const QueueCountService = async (QueueCount, bid) => {
-    // if (!QueueCount || !bid) {
-    //     throw new Error("No Data found!")
-    // }
-    // get the count of the workers enrolled for the queue of this bid
-    // need to optimize it in the later part
-    const allworkers = await worker.find({ businessId: bid });
-    const io = getIO();
-    const workerCounts = allworkers.map(worker => ({
-        workerId: worker._id,
-        workerName: worker.workerName,
-        queueCount: worker.queueInfo.length,
-    }));
-
-    io.to(bid).emit("workerQueueUpdated", workerCounts);
-    // return workerCounts;
+export const QueueCountService = async (qid) => {
+    // estimated -wt & queue-count(displaying on update/refresh)
+    if(!qid){
+        throw "No Associated queue id found"
+    }
+    const queueDB = await queue.findById(qid);
+    return queueDB;
 }
 
 export const UpdatedQueueDataService = async (UpdatedExpectedStartTime, CurrentPostion, uid) => {

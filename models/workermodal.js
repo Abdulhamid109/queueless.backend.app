@@ -2,9 +2,9 @@ import mongoose from "mongoose"
 
 
 const WorkerModal = new mongoose.Schema({
-    role:{
-        type:String,
-        default:"worker"
+    role: {
+        type: String,
+        default: "worker"
     },
     workerName: {
         type: String
@@ -13,10 +13,7 @@ const WorkerModal = new mongoose.Schema({
         type: String,
         unique: true
     },
-    date:{
-        type:Date,
-        default:Date.now
-    },
+
     WorkStatus: {
         type: String,
         enum: ["active", "inactive"], //(to check whether the worker is active or not)
@@ -32,7 +29,8 @@ const WorkerModal = new mongoose.Schema({
         [
             {
                 queueID: String,
-                QueuePostion: String
+                QueuePostion: String,
+                date: String
             }
         ],
 

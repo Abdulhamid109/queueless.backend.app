@@ -14,8 +14,9 @@ export const joinQueueController =async(req,res)=>{
         )
         
     } catch (error) {
+        console.log("error => "+JSON.stringify(error));
         return res.status(500).json(
-            {error:"Internal Server error "+error}
+            {error:"Internal Server error "+ error}
         )
     }
 }
@@ -25,9 +26,9 @@ export const QueueCountController =async(req,res)=>{
     try {
         // const {QueueCount,bid} = req.body;
         const bid = await req.params.bid;
-       const workerCounts =  await QueueCountService(bid);
+       const data =  await QueueCountService(bid);
         return res.status(200).json(
-            {success:true,workerCounts}
+            {success:true,data}
         )
     } catch (error) {
         return res.status(500).json(
