@@ -38,7 +38,7 @@ export const QueueBookingService = async (wid, date) => {
 
             return {
                 name: userData.name,
-                position: data.QueuePostion,
+                position: data.position,
             };
         })
     );

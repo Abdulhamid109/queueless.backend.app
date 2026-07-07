@@ -26,6 +26,8 @@ export const getServiceWorkerData = async(businessId)=>{
     if(!businessId){
         throw new Error("No workers Associated with this business")
     }
+    // const CurrentDate = new Date();
+    // const now = CurrentDate.toLocaleDateString("en-US");
     const workersData = await worker.find({businessId:businessId});
     console.log("workers => "+workersData);
     return workersData;

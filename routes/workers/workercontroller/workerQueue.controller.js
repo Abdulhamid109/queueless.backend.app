@@ -21,9 +21,8 @@ export const updateWorkerStatusController = async(req,res)=>{
 
 export const QueueBookingController =async(req,res)=>{
     try {
-        const {date} = req.query;
         const wid = req.params.wid
-        const data = await QueueBookingService(wid,date);
+        const data = await QueueBookingService(wid);
         return res.status(200).json(
             {success:true,data}
         )

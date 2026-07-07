@@ -141,7 +141,9 @@ export const QueueCountService = async (qid) => {
     if(!qid){
         throw "No Associated queue id found"
     }
-    const queueDB = await queue.findById(qid);
+    const CurrentDate = new Date();
+    const now = CurrentDate.toLocaleDateString();
+    const queueDB = await queue.findById(qid,{date:now});
     return queueDB;
 }
 
