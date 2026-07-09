@@ -13,16 +13,22 @@ export const joinQueueService = async (serviceids, bid, uid) => {
     if (!uid) {
         throw "Unauthorized User"
     }
+    console.log("joinQueue -bid "+bid)
+        console.log("joinQueue -uid "+uid)
     const now = new Date();
     const Currentdate = now.toLocaleDateString();
     const io = getIO();
+    
 
     //1.To check whether the user/customer is already enrolled in the queue
     const existingActiveQueue = await queue.findOne({
         UserId: uid,
         businessId:bid,
-        QueueStatus: { $in: ["waiting", "in-progress"] }
+        date:Currentdate,
+        // JoinedQueue: true
     });
+
+    console.log("Existing Queue => "+existingActiveQueue);
 
     if (existingActiveQueue) {
         throw "You're already in a queue. Please wait until it's completed before joining another.";
@@ -113,13 +119,20 @@ await worker.findByIdAndUpdate(chosenWorker._id, {
     }
 });
 
-io.to(uid).emit("queue-estimated-time", expectedSlotStartingTime);
-await QueueCountService(bid);
+//update the users record also
+await customer.findByIdAndUpdate(uid,{
+    $push:{
+        activeQueues:{
+            businessId:bid,
+            queueId:saavedQueue._id,
+            date:now.toLocaleDateString()
+        }
+    }
+});
 
-await customer.findOneAndUpdate(
-    { _id: uid },
-    { $push: { businessId: bid, queueId: saavedQueue._id, date: Currentdate } }
-);
+io.to(uid).emit("queue-estimated-time", expectedSlotStartingTime);
+await QueueCountService(bid,uid);
+
 
 await inngestClient.send({
     name: "Queue-After-Join",
@@ -127,23 +140,40 @@ await inngestClient.send({
     data: { uid, bid, qid: saavedQueue._id }
 });
 
-return saavedQueue._id;
-
-
-
-
-
+return {qid:saavedQueue._id,wid:chosenWorker._id};
 }
 
 //before joinig and after the queue(for continous updates)
-export const QueueCountService = async (qid) => {
+export const QueueCountService = async (bid,uid) => {
     // estimated -wt & queue-count(displaying on update/refresh)
-    if(!qid){
-        throw "No Associated queue id found"
+    console.log("UID => "+uid);
+    console.log("BID => "+bid);
+    if(!uid || !bid){
+        throw "Something went wrong(ids)"
     }
     const CurrentDate = new Date();
     const now = CurrentDate.toLocaleDateString();
-    const queueDB = await queue.findById(qid,{date:now});
+
+    const CurrentUser = await customer.findById(uid);
+    console.log("uid"+CurrentUser);
+    if(!CurrentUser){
+        console.log("User not found");
+    }
+
+    const entry = CurrentUser.activeQueues.find(
+        (data)=>(
+            data.businessId.toString() === bid,
+            data.date == now
+        )
+    )
+
+    console.log("Entry obtained => "+entry);
+    if(!entry){
+        throw "User not in the queue"
+    }
+
+    const queueDB = await queue.findOne({_id:entry.queueId});
+    console.log("Queue -> "+queueDB);
     return queueDB;
 }
 
@@ -156,4 +186,36 @@ export const UpdatedQueueDataService = async (UpdatedExpectedStartTime, CurrentP
         UpdatedExpectedStartTime,
         CurrentPostion
     })
+}
+
+export const exitQueueService = async (bid,uid)=>{
+    if(!uid || !bid) {
+        throw new Error("Neccessary ids missing")
+    }
+    const date = new Date();
+    const currentDate = date.toLocaleDateString("en-US");
+    const queueRecord = await queue.findOneAndDelete({UserId:uid,businessId:bid});
+
+    const ownerWorker = await worker.findOne({
+        businessId: bid,
+        "queueInfo.queueID": queueRecord._id
+    });
+
+    if (ownerWorker) {
+        await worker.updateOne(
+            { _id: ownerWorker._id },
+            { $pull: { queueInfo: { queueID: queueRecord._id } } }
+        );
+    }
+    const updatedCustomerRecord = await customer.updateOne({_id:uid},{
+        $pull:{
+            activeQueues:{
+                queueID:queueRecord._id
+            }
+        }
+    })
+
+    await QueueCountService(bid,uid);
+
+    return true;
 }

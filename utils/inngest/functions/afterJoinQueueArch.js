@@ -55,7 +55,7 @@ export const AfterJoinWork = inngestClient.createFunction(
 
 
         //step03:Waiting for remaining time left before sending the ack
-        await step.sleep('final-15min', '15m');
+        await step.sleep('final-15min', '1m');
 
         // step04:Continously checcking the users location whether in the given time if it is in the readius or not
         const isNearbyPresent = await step.run("check-location-nearby", async () => {
@@ -92,6 +92,7 @@ export const AfterJoinWork = inngestClient.createFunction(
                     const updatedQueue = await queue.findByIdAndUpdate(qid, {
                         QueueStatus: "started"
                     })
+                    return "started"
                 })
 
                 //is the allocated time is over or the user leaves the business more than 100 meters
@@ -148,6 +149,8 @@ export const AfterJoinWork = inngestClient.createFunction(
                             }
                         })
                     })
+                }else{
+                    return {status:"No users in the queue"}
                 }
 
 
@@ -199,7 +202,7 @@ export const AfterJoinWork = inngestClient.createFunction(
 
             //remove the existing user from the queue
             await step.run("arch-after-completed", async () => {
-                await inngest.send({
+                await inngestClient.send({
                     name: "Queue-Arch-Rebalance",
                     data: {
                         bid,
@@ -212,7 +215,7 @@ export const AfterJoinWork = inngestClient.createFunction(
 
             if (nextUSer) {
                 await step.run('trigger-next', async () => {
-                    await inngest.send({
+                    await inngestClient.send({
                         name: "Queue-After-Join",
                         data: {
                             bid,

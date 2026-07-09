@@ -26,11 +26,25 @@ export const getServiceWorkerData = async(businessId)=>{
     if(!businessId){
         throw new Error("No workers Associated with this business")
     }
-    // const CurrentDate = new Date();
-    // const now = CurrentDate.toLocaleDateString("en-US");
+    
     const workersData = await worker.find({businessId:businessId});
     console.log("workers => "+workersData);
-    return workersData;
+    //sending the count based on date
+    const now = new Date();
+    const date = now.toLocaleDateString("en-US");
+    const result = workersData.map((worker) => {
+            const queueCount = worker.queueInfo.filter(
+                (queue) => queue.date === date
+            ).length;
+
+            return {
+                workerId: worker._id,
+                workerName: worker.workerName,
+                queueCount,
+                status:worker.WorkStatus
+            };
+        });
+    return result;
 }
 
 export const getSingleWorker = async(wid)=>{
@@ -53,3 +67,4 @@ export const updateWorker = async (wid,workerName,WorkerEmail) =>{
 
     return updatedWorkerInfo;
 }
+
