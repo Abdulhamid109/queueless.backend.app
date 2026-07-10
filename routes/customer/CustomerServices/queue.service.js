@@ -162,8 +162,7 @@ export const QueueCountService = async (bid,uid) => {
 
     const entry = CurrentUser.activeQueues.find(
         (data)=>(
-            data.businessId.toString() === bid,
-            data.date == now
+            data.businessId.toString() === bid && data.date === now
         )
     )
 
