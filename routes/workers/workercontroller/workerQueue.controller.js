@@ -1,4 +1,4 @@
-import { QueueBookingService, updateWorkerStatusService } from "../workerservices/WorkerQueue.service.js";
+import { updateWorkerStatusService, workerBookingCountService } from "../workerservices/WorkerQueue.service.js";
 
 
 
@@ -19,13 +19,26 @@ export const updateWorkerStatusController = async(req,res)=>{
     }
 }
 
-export const QueueBookingController =async(req,res)=>{
+// export const QueueBookingController =async(req,res)=>{
+//     try {
+//         const wid = req.params.wid
+//         const data = await QueueBookingService(wid);
+//         return res.status(200).json(
+//             {success:true,data}
+//         )
+//     } catch (error) {
+//         return res.status(500).json(
+//             {error:"Internal Service error"+error},
+//         )
+//     }
+// }
+
+export const workerBookingCount =async(req,res)=>{
     try {
-        const wid = req.params.wid
-        const data = await QueueBookingService(wid);
-        return res.status(200).json(
-            {success:true,data}
-        )
+        const wid = req.params.wid;
+        const date = req.query.date;
+        console.log("Demonstration check =>"+date,wid);
+        const data = await workerBookingCountService(wid,date);
     } catch (error) {
         return res.status(500).json(
             {error:"Internal Service error"+error},

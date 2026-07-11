@@ -17,8 +17,37 @@ export const updateWorkerStatusService = async (wid,status)=>{
     return updatedWorker;
 }
 
-export const QueueBookingService = async (wid, date) => {
+// export const QueueBookingService = async (wid, date) => {
 
+//     if (!wid) {
+//         throw new Error("WorkerId not found");
+//     }
+
+//     if (!date) {
+//         throw new Error("Date not found!");
+//     }
+
+//     const WorkerData = await worker.findById(wid);
+
+//     const queuelist = await Promise.all(
+//         WorkerData.queueInfo.map(async (data) => {
+
+//             const QueueData = await queue.findById(data.queueID);
+
+//             const userData = await customer.findById(QueueData.UserId);
+
+//             return {
+//                 name: userData.name,
+//                 position: data.position,
+//             };
+//         })
+//     );
+
+//     return queuelist;
+// };
+
+export const workerBookingCountService =async(wid, date) =>{
+    
     if (!wid) {
         throw new Error("WorkerId not found");
     }
@@ -44,4 +73,4 @@ export const QueueBookingService = async (wid, date) => {
     );
 
     return queuelist;
-};
+}

@@ -5,7 +5,7 @@ export const getAdminProfileInfo =async(req,res)=>{
     try {
         const adminId = req.params.adminId;
         const adminData = await getAdminProfileData(adminId);
-        return res.status.json(
+        return res.status(200).json(
             {success:true,data:adminData}
         )
     } catch (error) {

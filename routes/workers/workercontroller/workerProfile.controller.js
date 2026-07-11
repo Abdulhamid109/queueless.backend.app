@@ -1,3 +1,4 @@
+import { getWorkerProfileDetails } from "../workerservices/workerProfile.service.js";
 
 
 export const workerProfileController =async(req,res)=>{
