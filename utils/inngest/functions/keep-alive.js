@@ -1,4 +1,4 @@
-import { inngestClient } from "../inngestClient";
+import { inngestClient } from "../inngestClient.js";
 
 
 export const KeepAlive = inngestClient.createFunction(
