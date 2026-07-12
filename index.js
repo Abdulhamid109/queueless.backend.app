@@ -10,6 +10,7 @@ import { RebalanceQueue } from "./utils/inngest/functions/rebalancingQueue.js";
 import http from "http";
 import { Server } from "socket.io";
 import { intializeSocketConnection } from "./utils/socket.js";
+import { KeepAlive } from "./utils/inngest/functions/keep-alive.js";
 
 
 configDotenv()
@@ -17,7 +18,7 @@ const app = express();
 app.use(cors({origin:'*'}))
 app.use(express.json())
 app.use(express.urlencoded({extended:false}))
-app.use("/api/inngest", serve({ client: inngestClient, functions:[AfterJoinWork,RebalanceQueue] }));
+app.use("/api/inngest", serve({ client: inngestClient, functions:[AfterJoinWork,RebalanceQueue,KeepAlive] }));
 app.use("/admin/auth/",Adminrouter)
 app.use("/customer/auth/",MaincustomerRouter)
 app.use("/customer/",GenCustomerRouter)
