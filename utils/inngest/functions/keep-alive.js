@@ -10,6 +10,6 @@ export const KeepAlive = inngestClient.createFunction(
             });
         });
 
-        return res;
+        return "Jinda";
     }
 )
