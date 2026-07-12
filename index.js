@@ -14,10 +14,10 @@ import { intializeSocketConnection } from "./utils/socket.js";
 
 configDotenv()
 const app = express();
-app.use("/api/inngest", serve({ client: inngestClient, functions:[AfterJoinWork,RebalanceQueue] }));
 app.use(cors({origin:'*'}))
 app.use(express.json())
 app.use(express.urlencoded({extended:false}))
+app.use("/api/inngest", serve({ client: inngestClient, functions:[AfterJoinWork,RebalanceQueue] }));
 app.use("/admin/auth/",Adminrouter)
 app.use("/customer/auth/",MaincustomerRouter)
 app.use("/customer/",GenCustomerRouter)
