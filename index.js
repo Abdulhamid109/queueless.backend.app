@@ -14,6 +14,7 @@ import { intializeSocketConnection } from "./utils/socket.js";
 
 configDotenv()
 const app = express();
+app.use("/api/inngest", serve({ client: inngestClient, functions:[AfterJoinWork,RebalanceQueue] }));
 app.use(cors({origin:'*'}))
 app.use(express.json())
 app.use(express.urlencoded({extended:false}))
@@ -23,7 +24,6 @@ app.use("/customer/",GenCustomerRouter)
 app.use("/admin",PrivateAdminRouter);
 app.use("/worker/auth/",WorkerAuthRouter);
 app.use("/worker/",PrivateWorkerRouter)
-app.use("/api/inngest", serve({ client: inngestClient, functions:[AfterJoinWork,RebalanceQueue] }));
 
 
 const wss = http.createServer(app);
