@@ -3,11 +3,11 @@ import {readFileSync} from "fs";
 
 
 const serviceAccount = JSON.parse(
-    readFileSync(new URL("queueless-fcm-firebase-adminsdk-fbsvc-34f749eadb.json", import.meta.url))
+    readFileSync(new URL("../config/queueless-fcm-firebase-adminsdk-fbsvc-34f749eadb.json", import.meta.url))
 );
 
 admin.initializeApp({
-    credential: admin.cert(serviceAccount)
+    credential: admin.credential.cert(serviceAccount)
 })
 
 
