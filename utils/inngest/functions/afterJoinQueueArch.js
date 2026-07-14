@@ -65,7 +65,9 @@ export const AfterJoinWork = inngestClient.createFunction(
                     businessid:bid,
                     queueid:qid,
                     title:"Queue Update",
-                })
+                    body:"Your turn is coming up — Kindly acknowledge"
+                });
+                const savedNotificationn = await newNotification.save();
             }
 
             return "Email and calls will be made";
