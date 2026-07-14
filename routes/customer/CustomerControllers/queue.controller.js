@@ -1,4 +1,4 @@
-import { exitQueueService, joinQueueService, QueueCountService, UpdatedQueueDataService } from "../CustomerServices/queue.service.js";
+import { DirectQueueRemovalService, exitQueueService, joinQueueService, QueueCountService, UpdatedQueueDataService } from "../CustomerServices/queue.service.js";
 
 
 export const joinQueueController =async(req,res)=>{
@@ -26,8 +26,8 @@ export const joinQueueController =async(req,res)=>{
 export const QueueCountController =async(req,res)=>{
     try {
         // const {QueueCount,bid} = req.body;
-        console.log("🔍 Full params object:", req.params);
-        console.log("🔍 Full URL:", req.originalUrl);
+        // console.log("🔍 Full params object:", req.params);
+        // console.log("🔍 Full URL:", req.originalUrl);
         const bid = req.params.bid;
         const uid = req.params.uid;
         console.log("BID => "+bid);
@@ -62,6 +62,20 @@ export const exitQueueController = async(req,res)=>{
         const bid = await req.params.bid;
         const uid = await req.params.uid;
         const data = await exitQueueService(bid,uid);
+        return res.status(200).json(
+            {success:true,data}
+        )
+    } catch (error) {
+        return res.status(500).json(
+            {error:"Internal Serve error "+error}
+        )
+    }
+}
+
+export const DirectQueueRemovalController = async(req,res)=>{
+    try {
+        const qid = req.params.qid;
+        const data = await DirectQueueRemovalService(qid);
         return res.status(200).json(
             {success:true,data}
         )

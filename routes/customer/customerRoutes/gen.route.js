@@ -3,7 +3,11 @@ import { GetCustomerProfileDataController } from "../CustomerControllers/Profile
 import { GetBusinessBasedOnCat } from "../CustomerControllers/BusinessBasedOnCat.controller.js";
 import { addSystemFeedbackInfo } from "../CustomerControllers/SystemFeedBack.controller.js";
 import { addServiceFeedbackInfo } from "../CustomerControllers/serviceFeedback.controller.js";
-import { exitQueueController, joinQueueController, QueueCountController, updatedQueueDataController } from "../CustomerControllers/queue.controller.js";
+import { DirectQueueRemovalController, 
+    exitQueueController, 
+    joinQueueController,
+    QueueCountController, 
+    updatedQueueDataController } from "../CustomerControllers/queue.controller.js";
 import { UpdateLiveLocations } from "../CustomerControllers/livelocation.controller.js";
 
 const GenCustomerRouter = express.Router();
@@ -19,7 +23,8 @@ GenCustomerRouter.post("/getLiveLocation/:uid",UpdateLiveLocations);
 GenCustomerRouter.get("/getTotalQueueCount/:bid/:uid",QueueCountController);
 // GenCustomerRouter.post("/getUpdatedQueueCount/:bid",UpdatedQueueCountController);
 GenCustomerRouter.post("/updateQueueData",updatedQueueDataController);
-GenCustomerRouter.delete("/exitQueue/:bid/:uid",exitQueueController)
+GenCustomerRouter.delete("/exitQueue/:bid/:uid",exitQueueController);
+GenCustomerRouter.delete("/DirectQueueExit/:qid",DirectQueueRemovalController);
 
 
 

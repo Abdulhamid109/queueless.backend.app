@@ -17,7 +17,7 @@ export const AfterJoinWork = inngestClient.createFunction(
         let isuserLeft = false;
         let tries = 0;
         let userArrived = false;
-        
+
 
         while (!shouldNotify) {
             const result = await step.run(`poll-count-${pollCount}`, async () => {
@@ -54,18 +54,18 @@ export const AfterJoinWork = inngestClient.createFunction(
             // i need to send the ack inside the apps notification section + call and the user should accept it
             const customerDB = await customer.findById(uid);
             const fcmToken = customerDB.fcmToken;
-            if(fcmToken) {
+            if (fcmToken) {
                 await sendPushNotification(
                     fcmToken,
                     "Queue Update",
                     "Your turn is coming up — Kindly acknowledge"
                 );
                 const newNotification = new notifications({
-                    userid:uid,
-                    businessid:bid,
-                    queueid:qid,
-                    title:"Queue Update",
-                    body:"Your turn is coming up — Kindly acknowledge"
+                    userid: uid,
+                    businessid: bid,
+                    queueid: qid,
+                    title: "Queue Update",
+                    body: "Your turn is coming up — Kindly acknowledge"
                 });
                 const savedNotificationn = await newNotification.save();
             }
@@ -73,14 +73,55 @@ export const AfterJoinWork = inngestClient.createFunction(
             return "Email and calls will be made";
         });
 
-       
+
 
 
         //step03:Waiting for remaining time left before sending the ack
         await step.sleep('final-15min', '1m');
 
-         await step.run("Acknowledgement-checking",async()=>{
-            const customerDB = await customer.findById(uid);
+        await step.run("Acknowledgement-checking", async () => {
+            const notificationDB = await notifications.findOne({ userid: uid });
+            if (!notificationDB.ackStatus) {
+                //calling the leaveQueue
+                const response = await fetch(`${process.env.PRODLINK}/customer/DirectQueueExit/${qid}`)
+                if (response.status == 200) {
+                    const nextUSer = await step.run('get-next-user', async () => {
+                        const CompQueueEntry = await queue.findById(qid);
+                        return await queue.findOne({
+                            businessId: bid,
+                            date: new Date().toLocaleDateString(),
+                            JoinedQueue: true,
+                            CurrentPostion: CompQueueEntry.CurrentPostion + 1
+                        });
+                    });
+
+                    //remove the existing user from the queue
+                    await step.run("arch-after-completed", async () => {
+                        await inngestClient.send({
+                            name: "Queue-Arch-Rebalance",
+                            data: {
+                                bid,
+                                uid: nextUSer.UserId,
+                                qid: nextUSer._id,
+                            }
+                        })
+                    })
+
+
+                    if (nextUSer) {
+                        await step.run('trigger-next', async () => {
+                            await inngestClient.send({
+                                name: "Queue-After-Join",
+                                data: {
+                                    bid,
+                                    uid: nextUSer.UserId,
+                                    qid: nextUSer._id,
+                                }
+                            })
+                        })
+                    }
+                }
+            }
 
         })
 
@@ -176,8 +217,8 @@ export const AfterJoinWork = inngestClient.createFunction(
                             }
                         })
                     })
-                }else{
-                    return {status:"No users in the queue"}
+                } else {
+                    return { status: "No users in the queue" }
                 }
 
 

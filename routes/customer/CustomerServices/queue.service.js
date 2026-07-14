@@ -218,3 +218,14 @@ export const exitQueueService = async (bid,uid)=>{
 
     return true;
 }
+
+//importance if the user fails to accept the acknowledgement
+export const DirectQueueRemovalService = async(qid)=>{
+    if(!qid){
+        throw "Queue ID not found, Operation Failed"
+    }
+
+    const DeletedQueue = await queue.findByIdAndDelete(qid);
+    return DeletedQueue;
+
+}
