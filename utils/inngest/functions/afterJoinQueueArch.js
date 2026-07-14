@@ -1,6 +1,8 @@
 import { getDistanceInMeters } from "../../../helpers/getdistance.js";
+import { sendPushNotification } from "../../../helpers/SendNotifications.js";
 import business from "../../../models/BusinessModal.js";
 import customer from "../../../models/CustomerModal.js";
+import notifications from "../../../models/NotificationModal.js";
 import queue from "../../../models/QueueModal.js";
 import service from "../../../models/serviceModal.js";
 import { getIO } from "../../socket.js";
@@ -49,13 +51,36 @@ export const AfterJoinWork = inngestClient.createFunction(
 
         //step02 - Acknowledgment sending
         await step.run("Acknowledgement-Sending", async () => {
-            // i need to send the ack inside the apps notification section and the user should accept it
+            // i need to send the ack inside the apps notification section + call and the user should accept it
+            const customerDB = await customer.findById(uid);
+            const fcmToken = customerDB.fcmToken;
+            if(fcmToken) {
+                await sendPushNotification(
+                    fcmToken,
+                    "Queue Update",
+                    "Your turn is coming up — Kindly acknowledge"
+                );
+                const newNotification = new notifications({
+                    userid:uid,
+                    businessid:bid,
+                    queueid:qid,
+                    title:"Queue Update",
+                })
+            }
+
             return "Email and calls will be made";
         });
+
+       
 
 
         //step03:Waiting for remaining time left before sending the ack
         await step.sleep('final-15min', '1m');
+
+         await step.run("Acknowledgement-checking",async()=>{
+            const customerDB = await customer.findById(uid);
+
+        })
 
         // step04:Continously checcking the users location whether in the given time if it is in the readius or not
         const isNearbyPresent = await step.run("check-location-nearby", async () => {

@@ -68,6 +68,7 @@ export const workerBookingCountService =async(wid, date) =>{
             return {
                 name: userData.name,
                 position: data.position,
+                joinedQueue: QueueData.JoinedQueue
             };
         })
     );
