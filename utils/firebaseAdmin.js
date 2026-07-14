@@ -7,7 +7,7 @@ const serviceAccount = JSON.parse(
 );
 
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+    credential: admin.cert(serviceAccount)
 })
 
 
