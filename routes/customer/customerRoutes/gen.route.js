@@ -9,6 +9,7 @@ import { DirectQueueRemovalController,
     QueueCountController, 
     updatedQueueDataController } from "../CustomerControllers/queue.controller.js";
 import { UpdateLiveLocations } from "../CustomerControllers/livelocation.controller.js";
+import { getNotificationsController, updateAckNotificationController } from "../CustomerControllers/notifications.controller.js";
 
 const GenCustomerRouter = express.Router();
 
@@ -22,9 +23,11 @@ GenCustomerRouter.post("/joinQueue/:bid/:uid",joinQueueController);
 GenCustomerRouter.post("/getLiveLocation/:uid",UpdateLiveLocations);
 GenCustomerRouter.get("/getTotalQueueCount/:bid/:uid",QueueCountController);
 // GenCustomerRouter.post("/getUpdatedQueueCount/:bid",UpdatedQueueCountController);
-GenCustomerRouter.post("/updateQueueData",updatedQueueDataController);
+GenCustomerRouter.post("/update QueueData",updatedQueueDataController);
 GenCustomerRouter.delete("/exitQueue/:bid/:uid",exitQueueController);
 GenCustomerRouter.delete("/DirectQueueExit/:qid",DirectQueueRemovalController);
+GenCustomerRouter.get("/getNotifications/:uid",getNotificationsController);
+GenCustomerRouter.put("/updateAckStatus/:nid",updateAckNotificationController);
 
 
 
