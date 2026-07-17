@@ -10,6 +10,7 @@ import { DirectQueueRemovalController,
     updatedQueueDataController } from "../CustomerControllers/queue.controller.js";
 import { UpdateLiveLocations } from "../CustomerControllers/livelocation.controller.js";
 import { getNotificationsController, updateAckNotificationController } from "../CustomerControllers/notifications.controller.js";
+import { UpdateFCMToken } from "../CustomerControllers/fcm.controller.js";
 
 const GenCustomerRouter = express.Router();
 
@@ -28,7 +29,7 @@ GenCustomerRouter.delete("/exitQueue/:bid/:uid",exitQueueController);
 GenCustomerRouter.delete("/DirectQueueExit/:qid",DirectQueueRemovalController);
 GenCustomerRouter.get("/getNotifications/:uid",getNotificationsController);
 GenCustomerRouter.put("/updateAckStatus/:nid",updateAckNotificationController);
-
+GenCustomerRouter.put("/updateFCM/:uid",UpdateFCMToken);
 
 
 export default GenCustomerRouter;

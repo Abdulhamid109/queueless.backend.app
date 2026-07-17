@@ -47,6 +47,9 @@ const CustomerModal = new mongoose.Schema({
     },
     FlexibleTiming:{
         type:Boolean
+    },
+    fcmToken:{
+        type:String
     }
 
 });
