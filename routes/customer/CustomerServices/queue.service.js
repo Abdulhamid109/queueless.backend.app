@@ -211,7 +211,7 @@ export const exitQueueService = async (bid,uid)=>{
     const updatedCustomerRecord = await customer.updateOne({_id:uid},{
         $pull:{
             activeQueues:{
-                queueID:queueRecord._id
+                queueId:queueRecord._id
             }
         }
     });
