@@ -200,6 +200,8 @@ export const exitQueueService = async (bid,uid)=>{
         "queueInfo.queueID": queueRecord._id
     });
 
+    console.log("Who's the owner worker => "+ownerWorker);
+
     if (ownerWorker) {
         await worker.updateOne(
             { _id: ownerWorker._id },
@@ -212,7 +214,9 @@ export const exitQueueService = async (bid,uid)=>{
                 queueID:queueRecord._id
             }
         }
-    })
+    });
+
+    const updateWorkerRecord = await worker.updateOne()
 
     await QueueCountService(bid,uid);
 

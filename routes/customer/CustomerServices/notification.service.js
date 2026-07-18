@@ -5,7 +5,7 @@ import notifications from "../../../models/NotificationModal.js";
 dbconnect();
 
 export const getNotificationsService =async(uid)=>{
-    if(uid){
+    if(!uid){
         throw new Error("Uid not found!");
     }
     const notificationsData = await notifications.find({"userid":uid});
