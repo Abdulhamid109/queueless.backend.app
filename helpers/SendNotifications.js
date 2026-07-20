@@ -1,4 +1,4 @@
-import admin from "../utils/firebaseAdmin.js";
+import { messaging } from "../utils/firebaseAdmin.js";
 
 export const sendPushNotification = async (fcmToken, title, body, data = {}) => {
     const message = {
@@ -6,5 +6,5 @@ export const sendPushNotification = async (fcmToken, title, body, data = {}) => 
         notification: { title, body },
         data,
     };
-    return await admin.messaging().send(message);
+    return await messaging.send(message);
 };

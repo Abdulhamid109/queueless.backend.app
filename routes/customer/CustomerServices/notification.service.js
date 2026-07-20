@@ -8,7 +8,7 @@ export const getNotificationsService =async(uid)=>{
     if(!uid){
         throw new Error("Uid not found!");
     }
-    const notificationsData = await notifications.find({"userid":uid});
+    const notificationsData = await notifications.find({"userid":uid}).sort({createdAt:-1});
     return notificationsData;
 }
 

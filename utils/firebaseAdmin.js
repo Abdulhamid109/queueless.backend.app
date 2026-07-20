@@ -1,15 +1,16 @@
 import admin from "firebase-admin";
+import { getMessaging } from "firebase-admin/messaging";
 import {readFileSync} from "fs";
 
 
 const serviceAccount = JSON.parse(
-    readFileSync(new URL("../config/queueless-fcm-firebase-adminsdk-fbsvc-34f749eadb.json", import.meta.url))
+    readFileSync(new URL("../config/queueless-fcm-4eebf9a1bb57.json", import.meta.url))
 );
 
-admin.initializeApp({
+const app = admin.initializeApp({
     credential: admin.cert(serviceAccount)
 })
 
 
-export default admin;
+export const messaging = getMessaging(app);
 
