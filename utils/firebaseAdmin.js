@@ -4,7 +4,7 @@ import {readFileSync} from "fs";
 
 
 const serviceAccount = JSON.parse(
-    readFileSync(new URL("../config/queueless-fcm-4eebf9a1bb57.json", import.meta.url))
+    readFileSync(new URL("/etc/secrets/queueless-fcm-4eebf9a1bb57.json", import.meta.url))
 );
 
 const app = admin.initializeApp({
