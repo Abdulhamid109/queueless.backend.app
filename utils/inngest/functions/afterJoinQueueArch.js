@@ -83,7 +83,7 @@ export const AfterJoinWork = inngestClient.createFunction(
             const notificationDB = await notifications.findOne({ userid: uid });
             if (!notificationDB.ackStatus) {
                 //calling the leaveQueue
-                const response = await fetch(`${process.env.DEVLINK}/customer/DirectQueueExit/${qid}`)
+                const response = await fetch(`https://queueless-backend-app.onrender.com/customer/DirectQueueExit/${qid}`)
                 if (response.status == 200) {
                     const nextUSer = await step.run('get-next-user', async () => {
                         const CompQueueEntry = await queue.findById(qid);
