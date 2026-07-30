@@ -73,5 +73,7 @@ export const workerBookingCountService =async(wid, date) =>{
         })
     );
 
+    console.log("QueueList"+queuelist);
+
     return queuelist;
 }
