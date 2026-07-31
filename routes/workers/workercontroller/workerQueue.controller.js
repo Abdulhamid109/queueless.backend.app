@@ -39,6 +39,9 @@ export const workerBookingCount =async(req,res)=>{
         const date = req.query.date;
         console.log("Demonstration check =>"+date,wid);
         const data = await workerBookingCountService(wid,date);
+        return res.status(200).json(
+            {success:true,data}
+        )
     } catch (error) {
         return res.status(500).json(
             {error:"Internal Service error"+error},
