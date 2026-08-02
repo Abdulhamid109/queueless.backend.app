@@ -30,29 +30,31 @@ export const DailyExpenseService=async(aid,bid)=>{
     return currentDayEarnings.reduce((sum,val)=>sum+val ,0);
 }
 
-export const OverallExpenseService = async(aid,bid)=>{
-    
-    if(!aid){
-        throw new Error("Unauthorized Admin")
+export const OverallExpenseService = async (aid, bid) => {
+    if (!aid) {
+        throw new Error("Unauthorized Admin");
     }
-    if(!bid){
-        throw new Error("No associated busines found")
+    if (!bid) {
+        throw new Error("No associated business found");
     }
 
-    const QueueDB = await queue.findOne({businessId:bid});
-    if(!QueueDB){
+    const QueueDB = await queue.find({ businessId: bid });
+    if (!QueueDB || QueueDB.length === 0) {
         throw new Error("Empty Queue");
     }
-    const serviceids = await QueueDB.ServiceId;
-    const currentDayEarnings = await Promise.all(
-        serviceids.map(async(sid)=>{
+
+    // Flatten ServiceId arrays across ALL queue documents
+    const serviceIds = QueueDB.flatMap((q) => q.ServiceId);
+
+    const allEarnings = await Promise.all(
+        serviceIds.map(async (sid) => {
             const serviceDB = await service.findById(sid);
             return Number(serviceDB.ChargesPerService);
         })
-    )
+    );
 
-    return currentDayEarnings.reduce((sum,val)=>sum+val ,0);
-}
+    return allEarnings.reduce((sum, val) => sum + val, 0);
+};
 
 export const CustomDateExpenseService = async(aid,bid,date)=>{
     if(!aid){
