@@ -188,20 +188,20 @@ export const UpdatedQueueDataService = async (UpdatedExpectedStartTime, CurrentP
     })
 }
 
-export const exitQueueService = async (bid,uid)=>{
-    if(!uid || !bid) {
-        throw new Error("Neccessary ids missing")
+export const exitQueueService = async (bid, uid) => {
+    if (!uid || !bid) {
+        throw new Error("Necessary ids missing");
     }
-    const date = new Date();
-    const currentDate = date.toLocaleDateString("en-US");
-    const queueRecord = await queue.findOneAndDelete({UserId:uid,businessId:bid});
+
+    const queueRecord = await queue.findOneAndDelete({ UserId: uid, businessId: bid });
+    if (!queueRecord) {
+        throw new Error("User not in the queue");
+    }
 
     const ownerWorker = await worker.findOne({
         businessId: bid,
-        "queueInfo.queueID": queueRecord._id
+        "queueInfo.queueID": queueRecord._id,
     });
-
-    console.log("Who's the owner worker => "+ownerWorker);
 
     if (ownerWorker) {
         await worker.updateOne(
@@ -209,20 +209,23 @@ export const exitQueueService = async (bid,uid)=>{
             { $pull: { queueInfo: { queueID: queueRecord._id } } }
         );
     }
-    const updatedCustomerRecord = await customer.updateOne({_id:uid},{
-        $pull:{
-            activeQueues:{
-                queueId:queueRecord._id
-            }
-        }
-    });
 
-    const updateWorkerRecord = await worker.updateOne()
+    await customer.updateOne(
+        { _id: uid },
+        { $pull: { activeQueues: { queueId: queueRecord._id } } }
+    );
 
-    await QueueCountService(bid,uid);
+    // Recompute counts/positions for remaining people in the business queue,
+    // not for the user who just left
+    try {
+        await QueueCountService(bid);
+    } catch (err) {
+        console.error("QueueCountService failed post-exit:", err);
+        // don't fail the whole exit just because the broadcast/recompute step failed
+    }
 
     return true;
-}
+};
 
 //importance if the user fails to accept the acknowledgement
 export const DirectQueueRemovalService = async(qid)=>{
