@@ -5,6 +5,8 @@ import { addworkerInfo, getSingleWorkerController, getWorkerData, updateWorkerCo
 import { addServiceInfo, getServiceInfo, getSingleServiceController, updateServiceController } from "../AdminControllers/serviceInfo.controller.js";
 import { addtimeInfo, getTimeInfo, UpdateTimeController } from "../AdminControllers/timeInfo.controller.js";
 import { getAdminProfileInfo } from "../AdminControllers/adminProfile.controller.js";
+import { CustomExpenseController, DailyExpenseController, OverallExpenseController } from "../AdminControllers/expense.controller.js";
+import { BusinessFeedbackController } from "../AdminControllers/feedback.controller.js";
 
 const PrivateAdminRouter = express.Router();
 
@@ -25,6 +27,12 @@ PrivateAdminRouter.put("/updateBusinessData/:adminid/:bid",updateBusinessData);
 PrivateAdminRouter.put("/updateServiceData/:serviceID",updateServiceController);
 PrivateAdminRouter.put("/updateWorkerData/:wid",updateWorkerController);
 PrivateAdminRouter.put("/updateTimeData/:tid",UpdateTimeController);
+
+PrivateAdminRouter.get("/dailyexpense/:aid/:bid",DailyExpenseController);
+PrivateAdminRouter.get("/overallexpense/:aid/:bid",OverallExpenseController);
+PrivateAdminRouter.get("/customexpense/:aid/:bid",CustomExpenseController);
+
+PrivateAdminRouter.get("/Businessfeedbacks/:bid",BusinessFeedbackController);
 
 
 
