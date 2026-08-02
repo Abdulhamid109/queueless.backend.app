@@ -40,9 +40,10 @@ export const joinQueueService = async (serviceids, bid, uid) => {
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
     const BSTMins = convertToMinutes(BusinessClosingTime);
 
-    if (currentMinutes >= BSTMins) {
-        throw "Business Closed!"
-    }
+    //for dev purpose
+    // if (currentMinutes >= BSTMins) {
+    //     throw "Business Closed!"
+    // }
 
     const countAhead = await queue.countDocuments({
         businessId: bid,

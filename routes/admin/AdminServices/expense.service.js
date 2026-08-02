@@ -43,7 +43,6 @@ export const OverallExpenseService = async (aid, bid) => {
         throw new Error("Empty Queue");
     }
 
-    // Flatten ServiceId arrays across ALL queue documents
     const serviceIds = QueueDB.flatMap((q) => q.ServiceId);
 
     const allEarnings = await Promise.all(
