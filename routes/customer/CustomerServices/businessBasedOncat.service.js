@@ -43,3 +43,40 @@ export const BusinessBasedOnCatService = async (category, latitude, longitude) =
     return allbusiness;
 
 }
+
+
+export const BusinessBasedOnRadService = async(category,latitude,longitude,radius) =>{
+    if (!latitude || !longitude) {
+        throw new Error("Location not found! ,retry");
+    }
+    if (!category) {
+        throw new Error("Catergory not present");
+    }
+
+    
+    const allbusiness = await business.aggregate([
+        {
+            $geoNear: {
+                near: {
+                    type: "Point",
+                    coordinates: [longitude, latitude]
+                },
+                distanceField: "distance",
+                maxDistance: radius,
+                spherical: true,
+                query: {
+                    BusinessCategory: category
+                }
+            }
+        },
+        {
+            $sort: {
+                distance: 1
+            }
+        }
+    ]);
+
+    console.log("Data => " + JSON.stringify(allbusiness));
+
+    return allbusiness;
+}

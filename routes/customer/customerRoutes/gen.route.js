@@ -30,6 +30,6 @@ GenCustomerRouter.delete("/DirectQueueExit/:qid",DirectQueueRemovalController);
 GenCustomerRouter.get("/getNotifications/:uid",getNotificationsController);
 GenCustomerRouter.put("/updateAckStatus/:nid",updateAckNotificationController);
 GenCustomerRouter.put("/updateFCM/:uid",UpdateFCMToken);
-
+GenCustomerRouter.post("/getBusinessBasedonRad/:slug",GetBusinessBasedonRad);
 
 export default GenCustomerRouter;
