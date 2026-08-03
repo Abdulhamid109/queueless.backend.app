@@ -189,7 +189,7 @@ export const AfterJoinWork = inngestClient.createFunction(
                 // }
 
                 await step.run("fail/rebalance", async () => {
-                    await inngest.send({
+                    await inngestClient.send({
                         name: "Queue-Arch-Rebalance",
                         data: {
                             bid,
@@ -214,7 +214,7 @@ export const AfterJoinWork = inngestClient.createFunction(
 
                 if (nextUSer) {
                     await step.run('trigger-next', async () => {
-                        await inngest.send({
+                        await inngestClient.send({
                             name: "Queue-After-Join",
                             data: {
                                 bid,
@@ -232,7 +232,7 @@ export const AfterJoinWork = inngestClient.createFunction(
 
         } else {
             await step.run("fail/rebalance", async () => {
-                await inngest.send({
+                await inngestClient.send({
                     name: "Queue-Arch-Rebalance",
                     data: {
                         bid,
@@ -255,7 +255,7 @@ export const AfterJoinWork = inngestClient.createFunction(
 
             if (nextUSer) {
                 await step.run('trigger-next', async () => {
-                    await inngest.send({
+                    await inngestClient.send({
                         name: "Queue-After-Join",
                         data: {
                             bid,
