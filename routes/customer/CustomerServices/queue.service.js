@@ -136,7 +136,7 @@ await QueueCountService(bid,uid);
 
 await inngestClient.send({
     name: "Queue-After-Join",
-    id: "QueueArch-afterJoin",
+    id: `QueueArch-afterJoin-${saavedQueue._id}`,
     data: { uid, bid, qid: saavedQueue._id }
 });
 
