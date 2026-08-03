@@ -17,8 +17,7 @@ const notificationModal = mongoose.Schema({
         type:String
     },
     ackStatus:{
-        type:Boolean,
-        default:false
+        type:String,
     },
     createdAt:{
         type:Date,

@@ -81,7 +81,7 @@ export const AfterJoinWork = inngestClient.createFunction(
 
         await step.run("Acknowledgement-checking", async () => {
             const notificationDB = await notifications.findOne({ userid: uid });
-            if (!notificationDB.ackStatus) {
+            if (notificationDB.ackStatus == "notcomming") {
                 //calling the leaveQueue
                 const response = await fetch(`https://queueless-backend-app.onrender.com/customer/DirectQueueExit/${qid}`)
                 if (response.status == 200) {
@@ -224,7 +224,48 @@ export const AfterJoinWork = inngestClient.createFunction(
 
             }
 
+        } else {
+            await step.run("fail/rebalance", async () => {
+                await inngest.send({
+                    name: "Queue-Arch-Rebalance",
+                    data: {
+                        bid,
+                        uid: uid,
+                        qid: qid
+                    }
+                });
+
+
+            });
+
+            const nextUSer = await step.run('get-next-user', async () => {
+                const failedEntry = await queue.findById(qid);
+                return await queue.findOne({
+                    businessId: bid,
+                    date: new Date().toLocaleDateString(),
+                    JoinedQueue: true,
+                    QueueStatus: "waiting",
+                    // CurrentPostion: failedEntry.CurrentPostion + 1
+                }).sort({ CurrentPostion: 1 });
+            });
+
+            if (nextUSer) {
+                await step.run('trigger-next', async () => {
+                    await inngest.send({
+                        name: "Queue-After-Join",
+                        data: {
+                            bid,
+                            uid: nextUSer.UserId,
+                            qid: nextUSer._id,
+                        }
+                    })
+                })
+            } else {
+                return { status: "No users in the queue" }
+            }
         }
+
+
 
 
 
