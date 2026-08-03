@@ -12,11 +12,14 @@ export const getNotificationsService =async(uid)=>{
     return notificationsData;
 }
 
-export const updateAckNotification = async(notificationID)=>{
+export const updateAckNotification = async(notificationID,status)=>{
     if(!notificationID){
         throw new Error("Uid not found!");
     }
+    
     const updatedNotification = await notifications.findByIdAndUpdate(notificationID,{
-        ackStatus:true
+        ackStatus:status
     })
+
+    return updatedNotification;
 }

@@ -19,7 +19,8 @@ export const getNotificationsController=async(req,res)=>{
 export const updateAckNotificationController = async(req,res)=>{
     try {
         const notificationid = req.params.nid;
-        const data = await updateAckNotification(notificationid);
+        const {status} = req.body;
+        const data = await updateAckNotification(notificationid,status);
         return res.status(200).json(
             {success:true,data}
         )

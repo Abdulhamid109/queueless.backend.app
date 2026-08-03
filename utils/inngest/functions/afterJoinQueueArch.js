@@ -80,7 +80,7 @@ export const AfterJoinWork = inngestClient.createFunction(
         await step.sleep('final-15min', '1m');
 
         await step.run("Acknowledgement-checking", async () => {
-            const notificationDB = await notifications.findOne({ userid: uid });
+            const notificationDB = await notifications.findOne({ userid: uid,businessid:bid });
             if (notificationDB.ackStatus == "notcomming") {
                 //calling the leaveQueue
                 const response = await fetch(`https://queueless-backend-app.onrender.com/customer/DirectQueueExit/${qid}`)
@@ -123,7 +123,7 @@ export const AfterJoinWork = inngestClient.createFunction(
                 }
             }
 
-        })
+        });
 
         // step04:Continously checcking the users location whether in the given time if it is in the readius or not
         const isNearbyPresent = await step.run("check-location-nearby", async () => {
@@ -182,6 +182,12 @@ export const AfterJoinWork = inngestClient.createFunction(
                 // if not within go to the next person in the queue (current person failed) -> make sure you update the queuestatus as failed in db rebalnce entire queue
                 //remove the queue from worker,customer,rearrange entire based on time,start the next user function.
 
+                //mark the notification to not-comming
+                // const notificationDB = await notifications.findOne({userid:uid,businessid:bid});
+                // if(notificationDB.ackStatus=="comming"){
+                //     notifications.findByIdAndUpdate(notificationDB._id,{ackStatus:"notcomming"})
+                // }
+
                 await step.run("fail/rebalance", async () => {
                     await inngest.send({
                         name: "Queue-Arch-Rebalance",
@@ -234,8 +240,6 @@ export const AfterJoinWork = inngestClient.createFunction(
                         qid: qid
                     }
                 });
-
-
             });
 
             const nextUSer = await step.run('get-next-user', async () => {
@@ -350,12 +354,6 @@ export const AfterJoinWork = inngestClient.createFunction(
         // sending the ack to the next person in the queue(inngest event-driven calling)
         //send the notification to the user who are flexible with comming early.(later)
         //remove the queue data from the customer modal
-
-
-
-
-
-
 
     }
 )
