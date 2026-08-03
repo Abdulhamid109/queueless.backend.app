@@ -82,31 +82,31 @@ export const RebalanceQueue = await inngestClient.createFunction(
                 const queueInfoData = updatedWorker.queueInfo.find(
                     item => item.queueID.toString() === queueDoc._id.toString()
                 );
-                await fetch(`${process.env.PRODLINK}/updateQueueData`,
-                    {
-                        headers: { 'Content-Type': 'application/json' },
-                        method: "POST",
-                        body: JSON.stringify({
-                            "UpdatedExpectedStartTime": UpdatedExpectedStartTime,
-                            "CurrentPostion": queueInfoData.QueuePostion,
-                            "uid": queueDoc.UserId
-                        })
-                    }
-                )
+                // await fetch(`${process.env.PRODLINK}/updateQueueData`,
+                //     {
+                //         headers: { 'Content-Type': 'application/json' },
+                //         method: "POST",
+                //         body: JSON.stringify({
+                //             "UpdatedExpectedStartTime": UpdatedExpectedStartTime,
+                //             "CurrentPostion": queueInfoData.QueuePostion,
+                //             "uid": queueDoc.UserId
+                //         })
+                //     }
+                // )
 
             }));
 
             //emitting the total queue count based on the room
-            await fetch(`${process.env.PRODLINK}/getUpdatedQueueCount`,
-                    {
-                        headers: { 'Content-Type': 'application/json' },
-                        method: "POST",
-                        body: JSON.stringify({
-                            "QueueCount": upcomingQueues.length,
-                            "bid": bid
-                        })
-                    }
-                )
+            // await fetch(`${process.env.PRODLINK}/updateQueueData`,
+            //         {
+            //             headers: { 'Content-Type': 'application/json' },
+            //             method: "POST",
+            //             body: JSON.stringify({
+            //                 "QueueCount": upcomingQueues.length,
+            //                 "bid": bid
+            //             })
+            //         }
+            //     )
 
 
             //remove the Queuefromworker

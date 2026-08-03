@@ -24,7 +24,7 @@ GenCustomerRouter.post("/joinQueue/:bid/:uid",joinQueueController);
 GenCustomerRouter.post("/getLiveLocation/:uid",UpdateLiveLocations);
 GenCustomerRouter.get("/getTotalQueueCount/:bid/:uid",QueueCountController);
 // GenCustomerRouter.post("/getUpdatedQueueCount/:bid",UpdatedQueueCountController);
-GenCustomerRouter.post("/update QueueData",updatedQueueDataController);
+GenCustomerRouter.post("/updateQueueData",updatedQueueDataController);
 GenCustomerRouter.delete("/exitQueue/:bid/:uid",exitQueueController);
 GenCustomerRouter.delete("/DirectQueueExit/:qid",DirectQueueRemovalController);
 GenCustomerRouter.get("/getNotifications/:uid",getNotificationsController);
