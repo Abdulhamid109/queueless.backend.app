@@ -65,9 +65,9 @@ export const customerForgortPasswordService = async(email)=>{
         throw new Error("registered Email not found");
     }
     const ispresent = await customer.findOne({email});
-    // if(!ispresent){
-    //     throw new Error("Email not registered!");
-    // }
+    if(!ispresent){
+        throw new Error("Email not registered!");
+    }
     const OTPGenerated = await generateOTP();
     const {data,error} = await resendClient.emails.send({
         from: "Password-Auth <auth@queueless.fun>",
@@ -83,7 +83,7 @@ export const customerForgortPasswordService = async(email)=>{
     console.log("From Email => "+data);
 
     //storing the OTP inside the redis with OTP-UID format
-    redisClient.setex(`OTP-${ispresent._id}`,60,OTPGenerated);
+    await redisClient.setex(`OTP-${ispresent._id}`,60,OTPGenerated);
 
     return true;
 }
