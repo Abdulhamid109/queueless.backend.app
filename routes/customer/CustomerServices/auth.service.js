@@ -65,7 +65,7 @@ export const CustomerPreSignupService = async (email) => {
     }
     console.log("From Email => " + data);
 
-    await redisClient.setex(`OTP-${email}`, 60, OTPGenerated);
+    await redisClient.setex(`OTP-${email}`, 300, OTPGenerated);
 
     return true;
 }
@@ -131,7 +131,7 @@ export const customerForgortPasswordService = async (email) => {
     console.log("From Email => " + data);
 
     //storing the OTP inside the redis with OTP-UID format
-    await redisClient.setex(`OTP-${ispresent.email}`, 60, OTPGenerated);
+    await redisClient.setex(`OTP-${ispresent.email}`, 300, OTPGenerated);
 
     return true;
 }
