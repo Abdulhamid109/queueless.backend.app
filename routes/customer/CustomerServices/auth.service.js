@@ -2,6 +2,9 @@ import customer from "../../../models/CustomerModal.js";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import dbconnect from "../../../config/dbConfig.js";
+import resendClient from "../../../utils/resendClient.js";
+import { generateOTP } from "../../../helpers/OTPGeneration.js";
+import redisClient from "../../../utils/redisClient.js";
 
 dbconnect();
 export const handleLogin = async (email, password) => {
@@ -55,4 +58,31 @@ export const handleSignUp = async (FullName, email, password, CustomerAddress, l
 
     return savedUser;
 
+}
+
+export const customerForgortPasswordService = async(email)=>{
+    if(!email){
+        throw new Error("registered Email not found");
+    }
+    const ispresent = await customer.findOne({email});
+    // if(!ispresent){
+    //     throw new Error("Email not registered!");
+    // }
+    const OTPGenerated = await generateOTP();
+    const {data,error} = await resendClient.emails.send({
+        from:"Password-Auth auth@queueless.fun",
+        to:email,
+        subject:"OTP Validation for Forgot Password",
+        html:`Your OTP for ${email} is ${OTPGenerated}`
+    });
+
+    if(error){
+        throw new Error("From Email"+error)
+    }
+    console.log("From Email => "+data);
+
+    //storing the OTP inside the redis with OTP-UID format
+    redisClient.setex(`OTP-${ispresent._id}`,60,OTPGenerated);
+
+    return true;
 }

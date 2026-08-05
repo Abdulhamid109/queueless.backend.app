@@ -1,4 +1,4 @@
-import { handleLogin, handleSignUp } from "../CustomerServices/auth.service.js";
+import { customerForgortPasswordService, handleLogin, handleSignUp } from "../CustomerServices/auth.service.js";
 
 
 export const CustomerLogin = async(req,res)=>{
@@ -22,6 +22,22 @@ export const CustomerSignup = async(req,res)=>{
     try {
         const {FullName, email, password, CustomerAddress, latitude, longitude, phone} = req.body;
         const savedCustomer = await handleSignUp(FullName, email, password, CustomerAddress, latitude, longitude, phone);
+        return res.status(200).json(
+            {success:true}
+        )
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            error: error.message,
+        });
+    }
+}
+
+
+export const CustomerForgotPasswordController = async(req,res)=>{
+    try {
+        const {email} = req.body;
+        const status = await customerForgortPasswordService(email);
         return res.status(200).json(
             {success:true}
         )
