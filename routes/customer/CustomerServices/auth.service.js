@@ -145,12 +145,11 @@ export const ValidateOTPService = async (OTP, email) => {
         throw new Error("Registered email not found")
     }
     const SavedOTP = await redisClient.getex(`OTP-${email}`);
+    if (!SavedOTP) {
+        throw new Error("OTP expired or not found!");
+    }
     if (SavedOTP !== OTP) {
         throw new Error("Invalid OTP");
-    }
-
-    if(!SavedOTP){
-        throw new Error("OTP expired or not found!")
     }
     return true;
 

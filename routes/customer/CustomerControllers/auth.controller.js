@@ -73,7 +73,7 @@ export const ValidateOTPController =async(req,res)=>{
             {success:true}
         )
     } catch (error) {
-        return res.status(400).json({
+        return res.status(500).json({
             success: false,
             error: error.message,
         });
