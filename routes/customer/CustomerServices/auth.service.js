@@ -25,15 +25,15 @@ export const handleLogin = async (email, password) => {
     const payload = {
         uid: userdb._id,
         email: email,
-        role:userdb.role
+        role: userdb.role
     }
 
     const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '1d' });
     return token;
 }
 
-export const CustomerPreSignupService = async(email)=>{
-    if(!email){
+export const CustomerPreSignupService = async (email) => {
+    if (!email) {
         throw new Error("Email not found!");
     }
     const ispresent = await customer.findOne({ email });
@@ -41,21 +41,31 @@ export const CustomerPreSignupService = async(email)=>{
         throw new Error("User already Present,Kindly Login")
     }
 
-        const OTPGenerated = await generateOTP();
-    const {data,error} = await resendClient.emails.send({
-        from: "Account Verification <auth@queueless.fun>",
-        to:email,
-        subject:"OTP Validation for Forgot Password",
-        html:`Your OTP for ${email} is ${OTPGenerated}`
+    const OTPGenerated = await generateOTP();
+    const { data, error } = await resendClient.emails.send({
+        from: "Queueless <auth@queueless.fun>",
+        to: email,
+        subject: "Your Queueless verification code",
+        text: `Your OTP is ${OTPGenerated}. This code expires in 5 minutes. If you didn't request this, ignore this email.`,
+        html: `
+        <div style="font-family: sans-serif; padding: 20px;">
+            <h2>Verify your email</h2>
+            <p>Your one-time password is:</p>
+            <h1 style="letter-spacing: 4px;">${OTPGenerated}</h1>
+            <p>This code expires in 5 minutes. If you didn't request this, you can safely ignore this email.</p>
+            <hr/>
+            <p style="font-size: 12px; color: #888;">Queueless · auth@queueless.fun</p>
+        </div>
+    `
     });
 
-    if(error){
-        console.log("Error => "+JSON.stringify(error));
-        throw new Error("From Email"+error)
+    if (error) {
+        console.log("Error => " + JSON.stringify(error));
+        throw new Error("From Email" + error)
     }
-    console.log("From Email => "+data);
+    console.log("From Email => " + data);
 
-    await redisClient.setex(`OTP-${email}`,60,OTPGenerated);
+    await redisClient.setex(`OTP-${email}`, 60, OTPGenerated);
 
     return true;
 }
@@ -88,43 +98,60 @@ export const handleSignUp = async (FullName, email, password, CustomerAddress, l
 
 }
 
-export const customerForgortPasswordService = async(email)=>{
-    if(!email){
+export const customerForgortPasswordService = async (email) => {
+    if (!email) {
         throw new Error("registered Email not found");
     }
-    const ispresent = await customer.findOne({email});
-    if(!ispresent){
+    const ispresent = await customer.findOne({ email });
+    if (!ispresent) {
         throw new Error("Email not registered!");
     }
     const OTPGenerated = await generateOTP();
-    const {data,error} = await resendClient.emails.send({
-        from: "Password-Auth <auth@queueless.fun>",
-        to:email,
-        subject:"OTP Validation for Forgot Password",
-        html:`Your OTP for ${email} is ${OTPGenerated}`
+    const { data, error } = await resendClient.emails.send({
+        from: "Queueless <auth@queueless.fun>",
+        to: email,
+        subject: "Your Queueless verification code",
+        text: `Your OTP is ${OTPGenerated}. This code expires in 5 minutes. If you didn't request this, ignore this email.`,
+        html: `
+        <div style="font-family: sans-serif; padding: 20px;">
+            <h2>Verify your email</h2>
+            <p>Your one-time password is:</p>
+            <h1 style="letter-spacing: 4px;">${OTPGenerated}</h1>
+            <p>This code expires in 5 minutes. If you didn't request this, you can safely ignore this email.</p>
+            <hr/>
+            <p style="font-size: 12px; color: #888;">Queueless · auth@queueless.fun</p>
+        </div>
+    `
     });
 
-    if(error){
-        console.log("Error => "+JSON.stringify(error));
-        throw new Error("From Email"+error)
+    if (error) {
+        console.log("Error => " + JSON.stringify(error));
+        throw new Error("From Email" + error)
     }
-    console.log("From Email => "+data);
+    console.log("From Email => " + data);
 
     //storing the OTP inside the redis with OTP-UID format
-    await redisClient.setex(`OTP-${ispresent.email}`,60,OTPGenerated);
+    await redisClient.setex(`OTP-${ispresent.email}`, 60, OTPGenerated);
 
     return true;
 }
 
 
-export const ValidateOTPService =async(OTP,email)=>{
-    try {
-        const SavedOTP = await redisClient.getex(`OTP-${email}`);
-        if(SavedOTP!==OTP){
-            throw new Error("Invalid OTP");
-        }
-        return true;
-    } catch (error) {
-        
+export const ValidateOTPService = async (OTP, email) => {
+    if (!OTP) {
+        throw new Error("OTP not found");
     }
+    if (!email) {
+        throw new Error("Registered email not found")
+    }
+    const SavedOTP = await redisClient.getex(`OTP-${email}`);
+    if (SavedOTP !== OTP) {
+        throw new Error("Invalid OTP");
+    }
+
+    if(!SavedOTP){
+        throw new Error("OTP expired or not found!")
+    }
+    return true;
+
 }
