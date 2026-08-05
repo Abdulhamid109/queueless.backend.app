@@ -148,7 +148,7 @@ export const ValidateOTPService = async (OTP, email) => {
     if (!SavedOTP) {
         throw new Error("OTP expired or not found!");
     }
-    if (SavedOTP !== OTP) {
+    if (SavedOTP != OTP) {
         throw new Error("Invalid OTP");
     }
     return true;
