@@ -70,13 +70,14 @@ export const customerForgortPasswordService = async(email)=>{
     // }
     const OTPGenerated = await generateOTP();
     const {data,error} = await resendClient.emails.send({
-        from:"Password-Auth auth@queueless.fun",
+        from: "Password-Auth <auth@queueless.fun>",
         to:email,
         subject:"OTP Validation for Forgot Password",
         html:`Your OTP for ${email} is ${OTPGenerated}`
     });
 
     if(error){
+        console.log("Error => "+JSON.stringify(error));
         throw new Error("From Email"+error)
     }
     console.log("From Email => "+data);
