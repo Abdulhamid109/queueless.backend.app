@@ -1,4 +1,4 @@
-import { customerForgortPasswordService, handleLogin, handleSignUp } from "../CustomerServices/auth.service.js";
+import { customerForgortPasswordService, CustomerPreSignupService, handleLogin, handleSignUp, ValidateOTPService } from "../CustomerServices/auth.service.js";
 
 
 export const CustomerLogin = async(req,res)=>{
@@ -33,6 +33,21 @@ export const CustomerSignup = async(req,res)=>{
     }
 }
 
+export const CustomerPreSignupController = async(req,res)=>{
+    try {
+        const {email} = req.body;
+        const status = await CustomerPreSignupService(email);
+        return res.status(200).json(
+            {success:true}
+        )
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            error: error.message,
+        });
+    }
+}
+
 
 export const CustomerForgotPasswordController = async(req,res)=>{
     try {
@@ -49,3 +64,18 @@ export const CustomerForgotPasswordController = async(req,res)=>{
     }
 }
 
+
+export const ValidateOTPController =async(req,res)=>{
+    try {
+        const {OTP,email} = req.body;
+        const status = await ValidateOTPService(OTP,email);
+        return res.status(200).json(
+            {success:true}
+        )
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            error: error.message,
+        });
+    }
+}

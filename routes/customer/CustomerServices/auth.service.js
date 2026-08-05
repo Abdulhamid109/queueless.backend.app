@@ -32,6 +32,34 @@ export const handleLogin = async (email, password) => {
     return token;
 }
 
+export const CustomerPreSignupService = async(email)=>{
+    if(!email){
+        throw new Error("Email not found!");
+    }
+    const ispresent = await customer.findOne({ email });
+    if (ispresent) {
+        throw new Error("User already Present,Kindly Login")
+    }
+
+        const OTPGenerated = await generateOTP();
+    const {data,error} = await resendClient.emails.send({
+        from: "Account Verification <auth@queueless.fun>",
+        to:email,
+        subject:"OTP Validation for Forgot Password",
+        html:`Your OTP for ${email} is ${OTPGenerated}`
+    });
+
+    if(error){
+        console.log("Error => "+JSON.stringify(error));
+        throw new Error("From Email"+error)
+    }
+    console.log("From Email => "+data);
+
+    await redisClient.setex(`OTP-${email}`,60,OTPGenerated);
+
+    return true;
+}
+
 
 export const handleSignUp = async (FullName, email, password, CustomerAddress, latitude, longitude, phone) => {
     if (!email || !FullName || !password || !CustomerAddress || !latitude || !longitude || !phone) {
@@ -83,7 +111,20 @@ export const customerForgortPasswordService = async(email)=>{
     console.log("From Email => "+data);
 
     //storing the OTP inside the redis with OTP-UID format
-    await redisClient.setex(`OTP-${ispresent._id}`,60,OTPGenerated);
+    await redisClient.setex(`OTP-${ispresent.email}`,60,OTPGenerated);
 
     return true;
+}
+
+
+export const ValidateOTPService =async(OTP,email)=>{
+    try {
+        const SavedOTP = await redisClient.getex(`OTP-${email}`);
+        if(SavedOTP!==OTP){
+            throw new Error("Invalid OTP");
+        }
+        return true;
+    } catch (error) {
+        
+    }
 }
