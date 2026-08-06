@@ -154,3 +154,19 @@ export const ValidateOTPService = async (OTP, email) => {
     return true;
 
 }
+
+export const ChangePasswordService = async (email,password)=>{
+    if(!email){
+        throw new Error("Email not found!");
+    }
+    if(!password){
+        throw new Error("Password not found")
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password,salt);
+    const updatedCustomerDB = await customer.findOneAndUpdate({email},{
+        "password":hashedPassword
+    });
+
+    return true;
+}
