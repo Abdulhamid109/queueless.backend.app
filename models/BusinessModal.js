@@ -47,6 +47,9 @@ const BusinessModal = new mongoose.Schema({
     website:{
         type:String
     },
+    businessImageLink:{
+        type:String
+    }
 
 });
 

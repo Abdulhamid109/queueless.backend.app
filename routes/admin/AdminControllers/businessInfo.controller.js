@@ -4,7 +4,9 @@ import { addbusinessData, getBusinessData, getBusinessDataFromID, updateBusiness
 export const addbusinessInfo =async(req,res)=>{
     try {
         const {adminid,BusinessName,BusinessAddress,BusinessCategory,Country,State,City,pinCode,website,latitude,longitude} = await req.body;
-        const bid = await addbusinessData(adminid,BusinessName,BusinessAddress,BusinessCategory,Country,State,City,pinCode,website,latitude,longitude);
+        const file = req.file;
+        const bid = await addbusinessData(adminid,BusinessName,BusinessAddress,BusinessCategory,Country,State,City,pinCode,website,latitude,longitude,file);
+        console.log("Business ID from business-service-layer:"+bid);
         return res.status(200).json(
             {success:true,bid}
         )

@@ -1,17 +1,34 @@
+import ImageKit from "imagekit";
 import dbconnect from "../../../config/dbConfig.js"
 import business from "../../../models/BusinessModal.js";
 
 
 
+var imagekit = new ImageKit({
+    publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+    privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+    urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
+});
 
 dbconnect();
-export const addbusinessData = async (adminid, BusinessName, BusinessAddress, BusinessCategory, Country, State, City, pinCode, website, latitude, longitude) => {
+export const addbusinessData = async (adminid, BusinessName, BusinessAddress, BusinessCategory, Country, State, City, pinCode, website, latitude, longitude, file) => {
     if (!adminid) {
         throw new Error("Unauthorized Admin!")
     }
     if (!BusinessName || !BusinessAddress || !BusinessCategory || !Country || !State || !City || !pinCode || !latitude || !longitude) {
         throw new Error("Values incompleted!")
     }
+
+    if (!file) {
+        throw new Error("Business Image not uploaded!")
+    }
+
+
+    const imagekitResponse = await imagekit.upload({
+        file: file.buffer,
+        fileName: file.originalname,
+        folder: "/queueless-business"
+    })
 
 
 
@@ -25,8 +42,13 @@ export const addbusinessData = async (adminid, BusinessName, BusinessAddress, Bu
         City,
         pinCode,
         website,
-        "BusinessCurrentLocation.type": "Point",
-        "BusinessCurrentLocation.coordinates": [longitude, latitude],
+        // "BusinessCurrentLocation.type": "Point",
+        // "BusinessCurrentLocation.coordinates": [longitude, latitude],
+        BusinessCurrentLocation: {
+            type: "Point",
+            coordinates: [Number(longitude), Number(latitude)]
+        },
+        businessImageLink: imagekitResponse.url
     });
 
     const savedBusiness = await newBusinessInformation.save();
