@@ -21,7 +21,7 @@ export const UpdateProfileDataController =async(req,res)=>{
     try {
         const id = req.params.id;
         const {updatedName, updatedPhone, updatedAddress,latitude,longitude} = req.body;
-        const data = await updateProfileDataService(id,name, phone, address,latitude,longitude);
+        const data = await updateProfileDataService(id,updatedName, updatedPhone, updatedAddress,latitude,longitude);
         return res.status(200).json(
             {success:true}
         )
