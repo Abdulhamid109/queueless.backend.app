@@ -16,10 +16,11 @@ export const updateAckNotification = async(notificationID,status)=>{
     if(!notificationID){
         throw new Error("Uid not found!");
     }
-    
+    //need to check exipry check
     const updatedNotification = await notifications.findByIdAndUpdate(notificationID,{
         ackStatus:status
-    })
+    });
+    
 
     return updatedNotification;
 }

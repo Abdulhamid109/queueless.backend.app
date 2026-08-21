@@ -18,6 +18,7 @@ const notificationModal = mongoose.Schema({
     },
     ackStatus:{
         type:String,
+        default:"notcomming"
     },
     createdAt:{
         type:Date,

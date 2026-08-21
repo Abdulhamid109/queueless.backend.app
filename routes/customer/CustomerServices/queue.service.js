@@ -95,6 +95,8 @@ if (!chosenWorker) {
 // now do the single assignment, once, to chosenWorker
 const expectedSlotStartingTime = new Date(Date.now() + minWaitingTime * 60000);
 
+
+
 const newQueue = new queue({
     UserId: uid,
     businessId: bid,
