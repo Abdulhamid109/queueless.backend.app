@@ -1011,7 +1011,7 @@ export const AfterJoinWork = inngestClient.createFunction(
                     await inngestClient.send({
                         name: "Queue-Arch-Rebalance",
                         data: { bid, uid: nextUSer.UserId, qid: nextUSer._id }
-                    })
+                    });
                 })
 
                 await step.run('trigger-next', async () => {
@@ -1020,7 +1020,10 @@ export const AfterJoinWork = inngestClient.createFunction(
                         data: { bid, uid: nextUSer.UserId, qid: nextUSer._id }
                     })
                 })
+            }else{
+                return "No next users in the queue"
             }
+
         }
     }
 )
