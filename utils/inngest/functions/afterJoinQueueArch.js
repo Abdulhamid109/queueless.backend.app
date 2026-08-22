@@ -652,14 +652,14 @@ export const AfterJoinWork = inngestClient.createFunction(
 
                     console.log("User left distance => " + distance);
 
-                    return distance >= 100;
+                    return distance >= 10;
                 }
             );
 
             if (!isuserLeft) {
                 await step.sleep(
                     `sleep-${tries}`,
-                    "10m"
+                    "1m"
                 );
             }
 
