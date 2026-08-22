@@ -39,12 +39,12 @@ const CustomerModal = new mongoose.Schema({
         date:String
     }
 ],
-    LiveLatitude:{
-        type:String
-    },
-    LiveLongitude:{
-        type:String
-    },
+    LiveLatitude: {
+    type: Number,
+},
+LiveLongitude: {
+    type: Number,
+},
     FlexibleTiming:{
         type:Boolean
     },

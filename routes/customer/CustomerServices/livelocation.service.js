@@ -6,11 +6,12 @@ export const updateLiveLocationService =async(uid,latitude,longitude)=>{
         throw "Coordinates not found";
     }
 
+    console.log("Live - Coordinates => "+latitude,longitude);
     const updateCustomer = await customer.findByIdAndUpdate(uid,{
         LiveLatitude:latitude,
         LiveLongitude:longitude
     });
 
-    return true;
+    return updateCustomer;
 
 }

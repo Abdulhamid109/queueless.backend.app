@@ -16,10 +16,11 @@ const notificationModal = mongoose.Schema({
     queueID:{
         type:String
     },
-    ackStatus:{
-        type:String,
-        default:"notcomming"
-    },
+    ackStatus: {
+    type: String,
+    enum: ["pending", "comming", "notcomming"],
+    default: "pending"
+},
     createdAt:{
         type:Date,
         default:Date.now
