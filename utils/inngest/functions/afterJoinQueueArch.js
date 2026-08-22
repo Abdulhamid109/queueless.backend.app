@@ -795,7 +795,8 @@ export const AfterJoinWork = inngestClient.createFunction(
         let ackTries = 0;
         let ackResolved = false;
         let finalAckStatus = null;
-
+        
+        await step.run('15min-check',"1m")
         while (!ackResolved) {
             const ackResult = await step.run(`ack-check-${ackTries}`, async () => {
                 const notificationDB = await notifications.findOne({ userid: uid, businessid: bid, queueid: qid });
@@ -957,12 +958,12 @@ export const AfterJoinWork = inngestClient.createFunction(
 
                     console.log("User left distance => " + distance);
 
-                    return distance >= 100;
+                    return distance >= 10;
                 }
             );
 
             if (!isuserLeft) {
-                await step.sleep(`sleep-${tries}`, "10m");
+                await step.sleep(`sleep-${tries}`, "1m");
             }
 
             tries++;
