@@ -182,7 +182,7 @@
 //             } 
 //             return { status: "No users in the queue" }
 //         }
-        
+
 //         const locationRecheck = await step.run("nearby-recheck", async () => {
 //                 const userDB = await customer.findById(uid);
 //                 const businessDB = await business.findById(bid);
@@ -221,8 +221,8 @@
 //                 console.log(queueWaitingTime);
 //                 // for demonstration purpose
 
-            
-            
+
+
 //             } else {
 //                 // if not within go to the next person in the queue (current person failed) -> make sure you update the queuestatus as failed in db rebalnce entire queue
 //                 //remove the queue from worker,customer,rearrange entire based on time,start the next user function.
@@ -274,8 +274,8 @@
 
 
 //             }
-        
-        
+
+
 
 
 
@@ -780,7 +780,7 @@ export const AfterJoinWork = inngestClient.createFunction(
                     userid: uid,
                     businessid: bid,
                     queueid: qid, // NOTE: make sure this matches your schema's casing exactly —
-                                  // see the queueID/queueid mismatch flagged separately for NotificationModal.js
+                    // see the queueID/queueid mismatch flagged separately for NotificationModal.js
                     title: "Queue Update",
                     body: "Your turn is coming up — Kindly acknowledge"
                 });
@@ -789,43 +789,34 @@ export const AfterJoinWork = inngestClient.createFunction(
             return "Email and calls will be made";
         });
 
-        // FIX (Bug 1, from previous pass): proper polling loop instead of a single one-shot check.
-        // Previously, ANY ackStatus other than exactly "notcomming" silently fell through and let
-        // the workflow proceed as if acknowledged — including "never responded at all".
-        let ackTries = 0;
-        let ackResolved = false;
-        let finalAckStatus = null;
-        
-        await step.run('15min-check',"1m")
-        while (!ackResolved) {
-            const ackResult = await step.run(`ack-check-${ackTries}`, async () => {
-                const notificationDB = await notifications.findOne({ userid: uid, businessid: bid, queueid: qid });
-                if (!notificationDB) return { status: "missing" };
-                return { status: notificationDB.ackStatus };
-            });
+        //step03: Sleep for the confirmation window (travel + confirmation time)
+        // NOTE: '1m' here for dev/testing — change to '15m' for production
+        await step.sleep('final-15min', '1m');
 
-            if (ackResult.status === "comming" || ackResult.status === "notcomming" || ackResult.status === "missing") {
-                finalAckStatus = ackResult.status;
-                ackResolved = true;
-            } else if (ackTries >= 6) {
-                // ~14 minutes elapsed with no response — treat as a timeout/no-show
-                finalAckStatus = "timeout";
-                ackResolved = true;
-            } else {
-                await step.sleep(`ack-wait-${ackTries}`, '2m');
+        await step.run("Acknowledgement-checking", async () => {
+            const notificationDB = await notifications.findOne({ userid: uid, businessid: bid, queueid: qid });
+
+            // FIX: added null check — if no fcmToken existed, no notification doc was ever created,
+            // and this would throw "Cannot read properties of null (reading 'ackStatus')"
+            if (!notificationDB) {
+                return "No notification record — likely missing device token";
             }
 
-            ackTries++;
-        }
+            // FIX: this is the actual bug from before — previously only checked for "notcomming".
+            // Now explicitly handles all three real outcomes: user said no, user never responded
+            // within the window (still "pending" or whatever your default is), or user confirmed.
+            if (notificationDB.ackStatus === "comming") {
+                return "User confirmed — proceeding to location check";
+            }
 
-        if (finalAckStatus === "notcomming" || finalAckStatus === "timeout" || finalAckStatus === "missing") {
+            // Covers both "notcomming" AND anyone who simply never responded in time —
+            // both cases should exit the queue, since an unconfirmed slot this close
+            // to the user's turn can't be safely held either way.
             const response = await fetch(`https://queueless-backend-app.onrender.com/customer/DirectQueueExit/${qid}`)
             if (response.status == 200) {
                 const nextUSer = await step.run('get-next-user', async () => {
                     return await queue.findOne({
-                        _id: { $ne: qid }, // FIX (Bug 2, from previous pass): exclude self, otherwise a
-                                            // solo user's own still-"waiting" entry could match itself
-                                            // due to the async gap before RebalanceQueue finishes.
+                        _id: { $ne: qid },
                         businessId: bid,
                         date: new Date().toLocaleDateString(),
                         JoinedQueue: true,
@@ -850,7 +841,41 @@ export const AfterJoinWork = inngestClient.createFunction(
                 }
             }
             return "left the queue";
-        }
+        });
+
+        // if (finalAckStatus === "notcomming" || finalAckStatus === "timeout" || finalAckStatus === "missing") {
+        //     const response = await fetch(`https://queueless-backend-app.onrender.com/customer/DirectQueueExit/${qid}`)
+        //     if (response.status == 200) {
+        //         const nextUSer = await step.run('get-next-user', async () => {
+        //             return await queue.findOne({
+        //                 _id: { $ne: qid }, // FIX (Bug 2, from previous pass): exclude self, otherwise a
+        //                 // solo user's own still-"waiting" entry could match itself
+        //                 // due to the async gap before RebalanceQueue finishes.
+        //                 businessId: bid,
+        //                 date: new Date().toLocaleDateString(),
+        //                 JoinedQueue: true,
+        //                 QueueStatus: "waiting",
+        //             }).sort({ CurrentPostion: 1 });
+        //         });
+
+        //         if (nextUSer) {
+        //             await step.run("arch-after-completed", async () => {
+        //                 await inngestClient.send({
+        //                     name: "Queue-Arch-Rebalance",
+        //                     data: { bid, uid: nextUSer.UserId, qid: nextUSer._id }
+        //                 })
+        //             })
+
+        //             await step.run('trigger-next', async () => {
+        //                 await inngestClient.send({
+        //                     name: "Queue-After-Join",
+        //                     data: { bid, uid: nextUSer.UserId, qid: nextUSer._id }
+        //                 })
+        //             })
+        //         }
+        //     }
+        //     return "left the queue";
+        // }
 
         // finalAckStatus === "comming" — proceed to location tracking
 
