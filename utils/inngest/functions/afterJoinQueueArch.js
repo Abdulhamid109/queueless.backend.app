@@ -779,7 +779,7 @@ export const AfterJoinWork = inngestClient.createFunction(
                 const newNotification = new notifications({
                     userid: uid,
                     businessid: bid,
-                    queueid: qid, // NOTE: make sure this matches your schema's casing exactly —
+                    queueID: qid, // NOTE: make sure this matches your schema's casing exactly —
                     // see the queueID/queueid mismatch flagged separately for NotificationModal.js
                     title: "Queue Update",
                     body: "Your turn is coming up — Kindly acknowledge"
@@ -795,7 +795,7 @@ export const AfterJoinWork = inngestClient.createFunction(
 
         await step.run("Acknowledgement-checking", async () => {
             const notificationDB = await notifications.findOne({ userid: uid, businessid: bid, queueid: qid });
-
+            
             // FIX: added null check — if no fcmToken existed, no notification doc was ever created,
             // and this would throw "Cannot read properties of null (reading 'ackStatus')"
             if (!notificationDB) {
