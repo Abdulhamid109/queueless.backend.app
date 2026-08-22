@@ -997,7 +997,13 @@ export const AfterJoinWork = inngestClient.createFunction(
         if (isuserLeft) {
             //delete the existing queue from the db ca;; direct qeuue
             await step.run(`removing-previous-queue-${qid}`,async()=>{
-                return await fetch(`https://queueless-backend-app.onrender.com/customer/DirectQueueExit/${qid}`)
+                const response =  await fetch(`https://queueless-backend-app.onrender.com/customer/DirectQueueExit/${qid}`)
+                if(response.status==200){
+                    return "removed user from the queue"
+                }
+                if(response.status!=200){
+                    return `response=> ${JSON.stringify(response.body)} -- ${response.status}`
+                }
             })
 
             const nextUSer = await step.run('get-next-user', async () => {
