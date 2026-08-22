@@ -898,7 +898,7 @@ export const AfterJoinWork = inngestClient.createFunction(
         });
 
         if (isNearbyPresent > 50) {
-            await step.sleep("BufferTime", "5m");
+            await step.sleep("BufferTime", "1m");
         }
         // isNearbyPresent <= 50 — arrived, success path continues below
 

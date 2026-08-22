@@ -27,13 +27,13 @@ export const RebalanceQueue = await inngestClient.createFunction(
                 {
                     businessId: bid,
                     "queueInfo.queueID": qid
-
                 }
             );
+
             if (!workerData) {
-    console.log(`No worker found holding queueID ${qid} — already removed or data mismatch`);
-    return "worker entry already removed";
-}
+                console.log(`No worker found holding queueID ${qid} — already removed or data mismatch`);
+                return "worker entry already removed";
+            }
 
             const currentQueue = workerData.queueInfo.find(
                 q => q.queueID.toString() == qid
@@ -43,10 +43,16 @@ export const RebalanceQueue = await inngestClient.createFunction(
                 q => Number(q.QueuePostion) > Number(currentQueue.QueuePostion)
             );
 
-            // const QueueDB = await queue.findByIdAndUpdate(qid,
-            //     { QueueStatus: "failed", status: "failed", JoinedQueue: false },
-            //     { new: true }
-            // );
+            // FIX: read the queue doc FIRST (need ServiceId off it below), THEN delete it —
+            // findByIdAndUpdate was recreating/upserting behavior you didn't want.
+            // findByIdAndDelete removes the document entirely instead of leaving a
+            // "failed" record behind.
+            const QueueDB = await queue.findById(qid);
+
+            if (!QueueDB) {
+                console.log(`Queue document ${qid} already deleted or not found`);
+                return "queue entry already removed";
+            }
 
             const ServiceDB = await service.find({
                 _id: { $in: QueueDB.ServiceId }
@@ -55,6 +61,9 @@ export const RebalanceQueue = await inngestClient.createFunction(
             const deductMins = ServiceDB.reduce(
                 (acc, s) => acc + s.AvgDurationPerCustomer, 0
             );
+
+            // Now that we've read everything we need off QueueDB, delete it for real.
+            await queue.findByIdAndDelete(qid);
 
 
             // Deduct time from each user's ExpectedStartTime in DB
@@ -68,9 +77,7 @@ export const RebalanceQueue = await inngestClient.createFunction(
                         expectedStartTime: UpdatedExpectedStartTime
                     },
                 );
-                // io.to(queueDoc.UserId).emit("UpdatedExpectedStartTime",expectedStartTime);
-                //webhook call to Node Server from inngest server
-                // calling the webhook connection to trigger the websocket inside the route
+
                 const updatedWorker = await worker.findOneAndUpdate(
                     {
                         _id: workerData._id,
@@ -82,36 +89,12 @@ export const RebalanceQueue = await inngestClient.createFunction(
                         }
                     }
                 );
-                // io.to(queueDoc.UserId).emit("currentPostion",)
+
                 const queueInfoData = updatedWorker.queueInfo.find(
                     item => item.queueID.toString() === queueDoc._id.toString()
                 );
-                // await fetch(`${process.env.PRODLINK}/updateQueueData`,
-                //     {
-                //         headers: { 'Content-Type': 'application/json' },
-                //         method: "POST",
-                //         body: JSON.stringify({
-                //             "UpdatedExpectedStartTime": UpdatedExpectedStartTime,
-                //             "CurrentPostion": queueInfoData.QueuePostion,
-                //             "uid": queueDoc.UserId
-                //         })
-                //     }
-                // )
 
             }));
-
-            //emitting the total queue count based on the room
-            // await fetch(`${process.env.PRODLINK}/updateQueueData`,
-            //         {
-            //             headers: { 'Content-Type': 'application/json' },
-            //             method: "POST",
-            //             body: JSON.stringify({
-            //                 "QueueCount": upcomingQueues.length,
-            //                 "bid": bid
-            //             })
-            //         }
-            //     )
-
 
             //remove the Queuefromworker
             await worker.findByIdAndUpdate(workerData._id, {
@@ -122,7 +105,7 @@ export const RebalanceQueue = await inngestClient.createFunction(
                 }
             })
 
-            console.log(`Deducted ${deductMins} mins from ${upcomingQueues.length} queue members`);
+            console.log(`Deleted queue ${qid} and deducted ${deductMins} mins from ${upcomingQueues.length} queue members`);
 
         })
     }
