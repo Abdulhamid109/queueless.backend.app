@@ -43,10 +43,10 @@ export const RebalanceQueue = await inngestClient.createFunction(
                 q => Number(q.QueuePostion) > Number(currentQueue.QueuePostion)
             );
 
-            const QueueDB = await queue.findByIdAndUpdate(qid,
-                { QueueStatus: "failed", status: "failed", JoinedQueue: false },
-                { new: true }
-            );
+            // const QueueDB = await queue.findByIdAndUpdate(qid,
+            //     { QueueStatus: "failed", status: "failed", JoinedQueue: false },
+            //     { new: true }
+            // );
 
             const ServiceDB = await service.find({
                 _id: { $in: QueueDB.ServiceId }
