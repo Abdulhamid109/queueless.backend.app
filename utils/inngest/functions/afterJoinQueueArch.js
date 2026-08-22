@@ -794,7 +794,7 @@ export const AfterJoinWork = inngestClient.createFunction(
         await step.sleep('final-15min', '1m');
 
         await step.run("Acknowledgement-checking", async () => {
-            const notificationDB = await notifications.findOne({ userid: uid, businessid: bid, queueid: qid });
+            const notificationDB = await notifications.findOne({ userid: uid, businessid: bid, queueID: qid });
             
             // FIX: added null check — if no fcmToken existed, no notification doc was ever created,
             // and this would throw "Cannot read properties of null (reading 'ackStatus')"
@@ -995,10 +995,15 @@ export const AfterJoinWork = inngestClient.createFunction(
         }
 
         if (isuserLeft) {
+            //delete the existing queue from the db ca;; direct qeuue
+            await step.run(`removing-previous-queue-${qid}`,async()=>{
+                return await fetch(`https://queueless-backend-app.onrender.com/customer/DirectQueueExit/${qid}`)
+            })
+
             const nextUSer = await step.run('get-next-user', async () => {
                 const CompQueueEntry = await queue.findById(qid);
                 return await queue.findOne({
-                    _id: { $ne: qid }, // FIX (Bug 2): same self-exclusion
+                    _id: { $ne: qid }, 
                     businessId: bid,
                     date: new Date().toLocaleDateString(),
                     JoinedQueue: true,

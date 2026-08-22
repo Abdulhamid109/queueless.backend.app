@@ -30,6 +30,10 @@ export const RebalanceQueue = await inngestClient.createFunction(
 
                 }
             );
+            if (!workerData) {
+    console.log(`No worker found holding queueID ${qid} — already removed or data mismatch`);
+    return "worker entry already removed";
+}
 
             const currentQueue = workerData.queueInfo.find(
                 q => q.queueID.toString() == qid
