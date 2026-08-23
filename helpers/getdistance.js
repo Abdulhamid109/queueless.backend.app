@@ -1,19 +1,31 @@
 // Harvisine formula for calculating the distance between two points
+import haversine from "haversine";
 export function getDistanceInMeters(
     [lng1, lat1],
     [lng2, lat2]
 ) {
-    const R = 6371000; // Earth radius in meters
-    const toRad = (deg) => (deg * Math.PI) / 180;
+    // const R = 6371000; // Earth radius in meters
+    // const toRad = (deg) => (deg * Math.PI) / 180;
 
-    const dLat = toRad(lat2 - lat1);
-    const dLng = toRad(lng2 - lng1);
+    // const dLat = toRad(lat2 - lat1);
+    // const dLng = toRad(lng2 - lng1);
 
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    // const a =
+    //     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    //     Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    //     Math.sin(dLng / 2) * Math.sin(dLng / 2);
 
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+    // const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    // return R * c;
+    const start = {
+        latitude:lat1,
+        longitude:lng1
+    }
+    const end = {
+        latitude:lat2,
+        longitude:lng2
+    }
+
+    console.log("Harvensine distance => "+haversine(start,end,{unit:'meter'}));
+    return haversine(start,end,{unit:'meter'});
 }
