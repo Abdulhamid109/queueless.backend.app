@@ -99,9 +99,7 @@ export const RebalanceQueue = await inngestClient.createFunction(
             //remove the Queuefromworker
             await worker.findByIdAndUpdate(workerData._id, {
                 $pull: {
-                    queueInfo: {
-                        queueID: qid
-                    }
+                    "queueInfo.queueID":qid
                 }
             })
 
