@@ -28,7 +28,9 @@ const WorkerModal = new mongoose.Schema({
         [
             {
                 queueID: String,
-                QueuePostion: String,
+                QueuePostion: {
+                    type: Number
+                },
                 date: String
             }
         ],

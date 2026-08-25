@@ -106,7 +106,7 @@ export const RebalanceQueue = await inngestClient.createFunction(
                         queueID: qid
                     }
                 }
-            })
+            });
 
             console.log(`Deleted queue ${qid} and deducted ${deductMins} mins from ${upcomingQueues.length} queue members`);
 
