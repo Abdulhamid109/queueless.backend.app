@@ -76,12 +76,9 @@ export const RebalanceQueue = await inngestClient.createFunction(
                 await queue.findByIdAndUpdate(d.queueID,
                     {
                         expectedStartTime: UpdatedExpectedStartTime,
+                        $inc: { CurrentPostion: -1 }
                     },
-                    {
-                        $inc:{
-                            CurrentPostion:-1
-                        }
-                    },{ new: true }
+
                 );
 
                 const updatedWorker = await worker.findOneAndUpdate(
@@ -105,7 +102,9 @@ export const RebalanceQueue = await inngestClient.createFunction(
             //remove the Queuefromworker
             await worker.findByIdAndUpdate(workerData._id, {
                 $pull: {
-                    "queueInfo.queueID":qid
+                    queueInfo: {
+                        queueID: qid
+                    }
                 }
             })
 
