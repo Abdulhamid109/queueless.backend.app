@@ -66,16 +66,22 @@ export const RebalanceQueue = await inngestClient.createFunction(
             await queue.findByIdAndDelete(qid);
 
 
-            // Deduct time from each user's ExpectedStartTime in DB
+            // Deduct time from each user's ExpectedStartTime in DB also update the postion to (next-1)
             await Promise.all(upcomingQueues.map(async (d) => {
                 const queueDoc = await queue.findById(d.queueID);
+                // const UpdatedqueuePostion = Number(queueDoc.CurrentPostion) - 1;
                 const UpdatedExpectedStartTime = new Date(
                     new Date(queueDoc.expectedStartTime).getTime() - deductMins * 60000
                 );
                 await queue.findByIdAndUpdate(d.queueID,
                     {
-                        expectedStartTime: UpdatedExpectedStartTime
+                        expectedStartTime: UpdatedExpectedStartTime,
                     },
+                    {
+                        $inc:{
+                            CurrentPostion:-1
+                        }
+                    }
                 );
 
                 const updatedWorker = await worker.findOneAndUpdate(
