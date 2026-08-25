@@ -81,7 +81,7 @@ export const RebalanceQueue = await inngestClient.createFunction(
                         $inc:{
                             CurrentPostion:-1
                         }
-                    }
+                    },{ new: true }
                 );
 
                 const updatedWorker = await worker.findOneAndUpdate(
