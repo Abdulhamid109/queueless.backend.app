@@ -2,59 +2,59 @@ import mongoose from "mongoose";
 
 
 const CustomerModal = new mongoose.Schema({
-    role:{
-        type:String,
-        default:"user"
+    role: {
+        type: String,
+        default: "user"
     },
-    name:{
-        type:String
+    name: {
+        type: String
     },
-    email:{
-        type:String
+    email: {
+        type: String
     },
-    password:{
-        type:String
+    password: {
+        type: String
     },
-    phone:{
-        type:String,
+    phone: {
+        type: String,
     },
-    CustomerCurrentLocation:{
-        type:{
-            type:String,
-            enum:["Point"],
-            required:true
+    CustomerCurrentLocation: {
+        type: {
+            type: String,
+            enum: ["Point"],
+            required: true
         },
-        coordinates:{
-            type:[Number],
-            required:true
+        coordinates: {
+            type: [Number],
+            required: true
         }
     },
-    CustomerAddress:{
-        type:String
+    CustomerAddress: {
+        type: String
     },
     activeQueues: [
-    {
-        businessId: { type: String, ref: 'Business' },
-        queueId:    { type: String, ref: 'queue' },
-        date:String
-    }
-],
+        {
+            businessId: { type: String, ref: 'Business' },
+            queueId: { type: String, ref: 'queue' },
+            date: String
+        }
+    ],
     LiveLatitude: {
-    type: Number,
-},
-LiveLongitude: {
-    type: Number,
-},
-    FlexibleTiming:{
-        type:Boolean
+        type: Number,
     },
-    fcmToken:{
-        type:String
+    LiveLongitude: {
+        type: Number,
+    },
+    FlexibleTiming: {
+        type: Boolean
+    },
+    fcmToken: {
+        type: String
     }
 
 });
 
 // CustomerModal.index({CustomerCurrentLocation:"2dsphere"})
 
-const customer = mongoose.models.customer || mongoose.model('customer',CustomerModal);
+const customer = mongoose.models.customer || mongoose.model('customer', CustomerModal);
 export default customer;

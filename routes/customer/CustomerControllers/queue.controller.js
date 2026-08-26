@@ -5,8 +5,8 @@ export const joinQueueController =async(req,res)=>{
     try {
         const bid = req.params.bid;
         const uid = req.params.uid;
-        console.log("joinQueue -bid cont "+bid)
-        console.log("joinQueue -uid cont "+uid)
+        // console.log("joinQueue -bid cont "+bid)
+        // console.log("joinQueue -uid cont "+uid)
         const {serviceIds} = req.body;
 
         const data = await joinQueueService(serviceIds,bid,uid);

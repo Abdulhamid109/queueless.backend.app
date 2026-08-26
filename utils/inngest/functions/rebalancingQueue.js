@@ -1,4 +1,6 @@
+import { sendPushNotification } from "../../../helpers/SendNotifications.js";
 import customer from "../../../models/CustomerModal.js";
+import notifications from "../../../models/NotificationModal.js";
 import queue from "../../../models/QueueModal.js";
 import service from "../../../models/serviceModal.js";
 import worker from "../../../models/workermodal.js";
@@ -97,6 +99,26 @@ export const RebalanceQueue = await inngestClient.createFunction(
                     item => item.queueID.toString() === queueDoc._id.toString()
                 );
 
+                const customerDB = await customer.findById(d.UserId);
+                if(customerDB.fcmToken){
+                    await sendPushNotification(
+                        customerDB.fcmToken,
+                        "Queue Slot Update",
+                        "Your Slot is rebalanced kindly check the Queue Page"
+                    )
+
+                    const notificationDB = new notifications({
+                        userid:d.UserId,
+                        businessid:d.businessId,
+                        title:"Queue Slot Update",
+                        body:"Your Slot is rebalanced kindly check the Queue Page",
+                        queueID:d._id,
+                        ackStatus:"update"
+                    });
+
+                    await notificationDB.save();
+                }
+
             }));
 
             //remove the Queuefromworker
@@ -107,6 +129,8 @@ export const RebalanceQueue = await inngestClient.createFunction(
                     }
                 }
             });
+
+
 
             console.log(`Deleted queue ${qid} and deducted ${deductMins} mins from ${upcomingQueues.length} queue members`);
 

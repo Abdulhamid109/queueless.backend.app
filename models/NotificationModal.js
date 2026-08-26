@@ -18,7 +18,7 @@ const notificationModal = mongoose.Schema({
     },
     ackStatus: {
     type: String,
-    enum: ["pending", "comming", "notcomming"],
+    enum: ["pending", "comming", "notcomming", "update"],
     default: "pending"
 },
     createdAt:{
