@@ -996,15 +996,21 @@ export const AfterJoinWork = inngestClient.createFunction(
 
         if (isuserLeft) {
             //delete the existing queue from the db ca;; direct qeuue
-            await step.run(`removing-previous-queue-${qid}`,async()=>{
-                const response =  await fetch(`https://queueless-backend-app.onrender.com/customer/DirectQueueExit/${qid}`)
-                if(response.status==200){
-                    return "removed user from the queue"
-                }
-                if(response.status!=200){
-                    return `response=> ${JSON.stringify(response.body)} -- ${response.status}`
-                }
-            })
+            // await step.run(`removing-existinguser-queue-${qid}`,async()=>{
+            //     const response =  await fetch(`https://queueless-backend-app.onrender.com/customer/DirectQueueExit/${qid}`)
+            //     if(response.status==200){
+            //         return "removed user from the queue"
+            //     }
+            //     if(response.status!=200){
+            //         return `response=> ${JSON.stringify(response.body)} -- ${response.status}`
+            //     }
+            // })
+            await step.run("fail/rebalance", async () => {
+                await inngestClient.send({
+                    name: `Queue-Arch-Rebalance-${qid}`,
+                    data: { bid, uid: uid, qid: qid }
+                });
+            });
 
             const nextUSer = await step.run('get-next-user', async () => {
                 const CompQueueEntry = await queue.findById(qid);
