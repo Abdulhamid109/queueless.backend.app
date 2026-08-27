@@ -1005,9 +1005,9 @@ export const AfterJoinWork = inngestClient.createFunction(
             //         return `response=> ${JSON.stringify(response.body)} -- ${response.status}`
             //     }
             // })
-            await step.run("fail/rebalance", async () => {
+            await step.run(`fail/rebalance-${qid}`, async () => {
                 await inngestClient.send({
-                    name: `Queue-Arch-Rebalance-${qid}`,
+                    name: `Queue-Arch-Rebalance`,
                     data: { bid, uid: uid, qid: qid }
                 });
             });
