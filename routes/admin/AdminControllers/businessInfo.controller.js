@@ -1,4 +1,4 @@
-import { addbusinessData, getBusinessData, getBusinessDataFromID, updateBusinessDataService } from "../AdminServices/businessInfo.service.js";
+import { addbusinessData, deleteBusinessService, getBusinessData, getBusinessDataFromID, updateBusinessDataService } from "../AdminServices/businessInfo.service.js";
 
 
 export const addbusinessInfo =async(req,res)=>{
@@ -58,6 +58,18 @@ export const updateBusinessData =async(req,res)=>{
     } catch (error) {
         return res.status(500).json(
             {error:"Internal Server error"+error}
+        )
+    }
+}
+
+
+export const deletebusinessController =async(req,res)=>{
+    try{
+        const bid = req.params.bid;
+        const result = await deleteBusinessService(bid);
+    }catch(error){
+        return res.status(500).json(
+            {error:error}
         )
     }
 }

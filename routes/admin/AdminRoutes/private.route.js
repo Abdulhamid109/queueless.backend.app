@@ -1,6 +1,6 @@
 // here we will be defining all the private routes
 import express from "express";
-import { addbusinessInfo, getBusinessBasedOnId, getBusinessInfo, updateBusinessData } from "../AdminControllers/businessInfo.controller.js";
+import { addbusinessInfo, deletebusinessController, getBusinessBasedOnId, getBusinessInfo, updateBusinessData } from "../AdminControllers/businessInfo.controller.js";
 import { addworkerInfo, getSingleWorkerController, getWorkerData, updateWorkerController } from "../AdminControllers/workerInfo.controller.js";
 import { addServiceInfo, getServiceInfo, getSingleServiceController, updateServiceController } from "../AdminControllers/serviceInfo.controller.js";
 import { addtimeInfo, getTimeInfo, UpdateTimeController } from "../AdminControllers/timeInfo.controller.js";
@@ -8,6 +8,7 @@ import { getAdminProfileInfo } from "../AdminControllers/adminProfile.controller
 import { CustomExpenseController, DailyExpenseController, OverallExpenseController } from "../AdminControllers/expense.controller.js";
 import { BusinessFeedbackController } from "../AdminControllers/feedback.controller.js";
 import multer from "multer";
+// import { liveQueueController } from "../AdminControllers/adminqueue.controller.js";
 
 const PrivateAdminRouter = express.Router();
 
@@ -46,6 +47,9 @@ PrivateAdminRouter.get("/overallexpense/:aid/:bid", OverallExpenseController);
 PrivateAdminRouter.get("/customexpense/:aid/:bid", CustomExpenseController);
 
 PrivateAdminRouter.get("/Businessfeedbacks/:bid", BusinessFeedbackController);
+// PrivateAdminRouter.get("/livequeuemembers/:bid", liveQueueController);
+
+PrivateAdminRouter.delete("/deletebusiness/:bid",deletebusinessController);
 
 
 

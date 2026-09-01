@@ -1,6 +1,9 @@
 import ImageKit from "imagekit";
 import dbconnect from "../../../config/dbConfig.js"
 import business from "../../../models/BusinessModal.js";
+import worker from "../../../models/workermodal.js";
+import service from "../../../models/serviceModal.js";
+import BusinessTime from "../../../models/TimeModal.js";
 
 
 
@@ -106,4 +109,15 @@ export const updateBusinessDataService = async (bid, aid, BusinessName, Business
     });
 
     return updatedBusiness;
+}
+
+export const deleteBusinessService = async(bid)=>{
+    if(!bid){
+        throw new Error("Business not found!");
+    }
+    const deletedbusiness = await business.findByIdAndDelete(bid);
+    const deleteworkers = await worker.deleteMany({businessId:bid});
+    const deleteservices = await service.deleteMany({businessId:bid});
+    const deletetime = await BusinessTime.findOneAndDelete({BusinessID:bid});
+    return true;
 }
