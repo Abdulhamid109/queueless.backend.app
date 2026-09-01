@@ -152,7 +152,6 @@ export const ValidateOTPService = async (OTP, email) => {
         throw new Error("Invalid OTP");
     }
     return true;
-
 }
 
 export const ChangePasswordService = async (email,password)=>{

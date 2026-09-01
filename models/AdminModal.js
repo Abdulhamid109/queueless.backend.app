@@ -15,9 +15,6 @@ const AdminModal = new mongoose.Schema({
     password:{
         type:String
     },
-    emailVerificationId:{
-        type:String
-    },
     createdAt:{
         type:Date,
         default:Date.now
