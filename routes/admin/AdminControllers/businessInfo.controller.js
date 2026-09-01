@@ -67,6 +67,9 @@ export const deletebusinessController =async(req,res)=>{
     try{
         const bid = req.params.bid;
         const result = await deleteBusinessService(bid);
+        return res.status(200).json(
+            {success:true}
+        )
     }catch(error){
         return res.status(500).json(
             {error:error}
