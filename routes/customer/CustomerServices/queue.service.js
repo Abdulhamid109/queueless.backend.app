@@ -59,8 +59,8 @@ export const joinQueueService = async (serviceids, bid, uid) => {
     // }
 
     const climitdb = await Climit.findOne({bid});
-    if(climitdb.customercomplimit>(await timeDB.CustomerLimitPerDay)){
-    throw "Unable to Book..Customer Limit exceeds for the day"
+    if(climitdb.customercomplimit>=(await timeDB.CustomerLimitPerDay)){
+    throw new Error("Unable to Book..Customer Limit exceeds for the day")
     }
 
 
