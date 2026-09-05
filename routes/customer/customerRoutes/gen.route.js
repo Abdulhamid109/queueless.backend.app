@@ -1,5 +1,5 @@
 import express from "express";
-import { GetCustomerProfileDataController, UpdateProfileDataController } from "../CustomerControllers/Profile.controller.js";
+import { DeleteAccountController, GetCustomerProfileDataController, UpdateProfileDataController } from "../CustomerControllers/Profile.controller.js";
 import { GetBusinessBasedOnCat, GetBusinessBasedonRad } from "../CustomerControllers/BusinessBasedOnCat.controller.js";
 import { addSystemFeedbackInfo } from "../CustomerControllers/SystemFeedBack.controller.js";
 import { addServiceFeedbackInfo } from "../CustomerControllers/serviceFeedback.controller.js";
@@ -32,5 +32,6 @@ GenCustomerRouter.put("/updateAckStatus/:nid",updateAckNotificationController);
 GenCustomerRouter.put("/updateFCM/:uid",UpdateFCMToken);
 GenCustomerRouter.post("/getBusinessBasedonRad/:slug",GetBusinessBasedonRad);
 GenCustomerRouter.put("/updateprofile/:id",UpdateProfileDataController);
+GenCustomerRouter.delete('/deleteaccount/:uid',DeleteAccountController);
 
 export default GenCustomerRouter;

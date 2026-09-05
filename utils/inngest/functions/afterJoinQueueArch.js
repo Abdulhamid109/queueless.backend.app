@@ -723,6 +723,7 @@
 import { getDistanceInMeters } from "../../../helpers/getdistance.js";
 import { sendPushNotification } from "../../../helpers/SendNotifications.js";
 import business from "../../../models/BusinessModal.js";
+import Climit from "../../../models/Climithistory.js";
 import customer from "../../../models/CustomerModal.js";
 import notifications from "../../../models/NotificationModal.js";
 import queue from "../../../models/QueueModal.js";
@@ -736,6 +737,7 @@ export const AfterJoinWork = inngestClient.createFunction(
         const { bid, uid, qid } = event.data;
         let pollCount = 0;
         let shouldNotify = false;
+        const tempqueue = 0;
 
         while (!shouldNotify) {
             const result = await step.run(`poll-count-${pollCount}`, async () => {
@@ -770,6 +772,8 @@ export const AfterJoinWork = inngestClient.createFunction(
         await step.run("Acknowledgement-Sending", async () => {
             const customerDB = await customer.findById(uid);
             const fcmToken = customerDB.fcmToken;
+            const businessdb = await business.findById(bid);
+            const businessName = await businessdb.BusinessName;
             if (fcmToken) {
                 await sendPushNotification(
                     fcmToken,
@@ -779,14 +783,13 @@ export const AfterJoinWork = inngestClient.createFunction(
                 const newNotification = new notifications({
                     userid: uid,
                     businessid: bid,
-                    queueID: qid, // NOTE: make sure this matches your schema's casing exactly —
-                    // see the queueID/queueid mismatch flagged separately for NotificationModal.js
+                    queueID: qid,
                     title: "Queue Update",
-                    body: "Your turn is coming up — Kindly acknowledge"
+                    body: `Your turn is coming up ${businessName} — Kindly acknowledge`
                 });
                 await newNotification.save();
             }
-            return "Email and calls will be made";
+            return "Email and calls/notification have been made";
         });
 
         //step03: Sleep for the confirmation window (travel + confirmation time)
@@ -839,6 +842,27 @@ export const AfterJoinWork = inngestClient.createFunction(
                         })
                     })
                 }
+            }
+            //notification sent to user for not comming
+            const customerDB = await customer.findById(uid);
+            const fcmToken = customerDB.fcmToken;
+            const businessdb = await business.findById(bid);
+            const businessName = await businessdb.BusinessName;
+            if (fcmToken) {
+                await sendPushNotification(
+                    fcmToken,
+                    "Queue Update",
+                    `Your turn has been cancelled for ${businessName}`
+                );
+                const newNotification = new notifications({
+                    userid: uid,
+                    businessid: bid,
+                    queueID: qid,
+                    title: "Queue Update",
+                    body: `Your turn has been cancelled for ${businessName}`,
+                    ackStatus:"update"
+                });
+                await newNotification.save();
             }
             return "left the queue";
         });
@@ -1005,6 +1029,40 @@ export const AfterJoinWork = inngestClient.createFunction(
             //         return `response=> ${JSON.stringify(response.body)} -- ${response.status}`
             //     }
             // })
+            const customerDB = await customer.findById(uid);
+            const fcmToken = customerDB.fcmToken;
+            const businessdb = await business.findById(bid);
+            const businessName = await businessdb.BusinessName;
+            
+            if (fcmToken) {
+                await sendPushNotification(
+                    fcmToken,
+                    "Queue Update",
+                    `Your turn has been completed for ${businessName}`
+                );
+                const newNotification = new notifications({
+                    userid: uid,
+                    businessid: bid,
+                    queueID: qid,
+                    title: "Queue Update",
+                    body: `Your turn has been completed for ${businessName}`,
+                    ackStatus:"update"
+                });
+                await newNotification.save();
+                tempqueue=tempqueue+1;
+            }
+            
+            //made the chnage the climit schema after the user 
+            const now = new Date();
+            const currentdate = now.toLocaleDateString();
+            const newClimit = new Climit({
+                customercomplimit : tempqueue,
+                bid:bid,
+                date:currentdate
+            });
+
+            await newClimit.save();
+
             await step.run(`fail/rebalance-${qid}`, async () => {
                 await inngestClient.send({
                     name: `Queue-Arch-Rebalance`,

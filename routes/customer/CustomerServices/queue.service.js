@@ -1,4 +1,5 @@
 import { convertToMinutes } from "../../../helpers/MinsConversion.js";
+import Climit from "../../../models/Climithistory.js";
 import customer from "../../../models/CustomerModal.js";
 import queue from "../../../models/QueueModal.js";
 import service from "../../../models/serviceModal.js";
@@ -53,9 +54,15 @@ export const joinQueueService = async (serviceids, bid, uid) => {
     const postion = countAhead + 1;
     console.log("Current Users postion in the Queue" + postion);
 
-    if (postion >= (await timeDB.CustomerLimitPerDay)) {
-        throw "Unable to Book..Customer Limit exceeds for the day"
+    // if (postion >= (await timeDB.CustomerLimitPerDay)) {
+    //     throw "Unable to Book..Customer Limit exceeds for the day"
+    // }
+
+    const climitdb = await Climit.findOne({bid});
+    if(climitdb.customercomplimit>(await timeDB.CustomerLimitPerDay)){
+    throw "Unable to Book..Customer Limit exceeds for the day"
     }
+
 
     //3.Based on the workers availibility add them in the Queue
     const workerDB = await worker.find({ businessId: bid });
