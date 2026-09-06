@@ -34,7 +34,7 @@ export const updateProfileDataService = async (id, name, phone, address, latitud
 }
 
 export const DeleteAccountService = async(uid)=>{
-    if(uid){
+    if(!uid){
         throw new Error("userid not found");
     }
 
