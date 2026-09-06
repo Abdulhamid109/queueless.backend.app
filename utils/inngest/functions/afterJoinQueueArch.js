@@ -907,7 +907,6 @@ export const AfterJoinWork = inngestClient.createFunction(
             const userDB = await customer.findById(uid);
             const businessDB = await business.findById(bid);
 
-            // DEBUG (temporary — remove once Bug 3 is confirmed/fixed):
             console.log("DEBUG customer live coords:", userDB.LiveLatitude, userDB.LiveLongitude);
             console.log("DEBUG business coords:", businessDB.BusinessCurrentLocation.coordinates);
 
@@ -924,13 +923,12 @@ export const AfterJoinWork = inngestClient.createFunction(
         if (isNearbyPresent > 50) {
             await step.sleep("BufferTime", "1m");
         }
-        // isNearbyPresent <= 50 — arrived, success path continues below
+
 
         const locationRecheck = await step.run("nearby-recheck", async () => {
             const userDB = await customer.findById(uid);
             const businessDB = await business.findById(bid);
 
-            // DEBUG (temporary — remove once Bug 3 is confirmed/fixed):
             console.log("DEBUG recheck customer live coords:", userDB.LiveLatitude, userDB.LiveLongitude);
             console.log("DEBUG recheck business coords:", businessDB.BusinessCurrentLocation.coordinates);
 
@@ -971,7 +969,7 @@ export const AfterJoinWork = inngestClient.createFunction(
 
             const nextUSer = await step.run('get-next-user', async () => {
                 return await queue.findOne({
-                    _id: { $ne: qid }, // FIX (Bug 2): same self-exclusion
+                    _id: { $ne: qid },
                     businessId: bid,
                     date: new Date().toLocaleDateString(),
                     JoinedQueue: true,
