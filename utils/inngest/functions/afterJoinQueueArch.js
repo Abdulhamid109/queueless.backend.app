@@ -762,7 +762,7 @@ export const AfterJoinWork = inngestClient.createFunction(
             if (result.Notify) {
                 shouldNotify = true;
             } else {
-                await step.sleep(`poll-sleep-${pollCount}`, '5m')
+                await step.sleep(`poll-sleep-${pollCount}`, '1m')
             }
 
             pollCount++;
@@ -794,7 +794,7 @@ export const AfterJoinWork = inngestClient.createFunction(
 
         //step03: Sleep for the confirmation window (travel + confirmation time)
         // NOTE: '1m' here for dev/testing — change to '15m' for production
-        await step.sleep('final-15min', '1m');
+        await step.sleep('final-15min', '15m');
 
         await step.run("Acknowledgement-checking", async () => {
             const notificationDB = await notifications.findOne({ userid: uid, businessid: bid, queueID: qid });
@@ -921,7 +921,7 @@ export const AfterJoinWork = inngestClient.createFunction(
         });
 
         if (isNearbyPresent > 50) {
-            await step.sleep("BufferTime", "1m");
+            await step.sleep("BufferTime", "3m");
         }
 
 
@@ -1010,7 +1010,7 @@ export const AfterJoinWork = inngestClient.createFunction(
             );
 
             if (!isuserLeft) {
-                await step.sleep(`sleep-${tries}`, "1m");
+                await step.sleep(`sleep-${tries}`, "5m");
             }
 
             tries++;
